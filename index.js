@@ -256,5 +256,5 @@ client.on("message", async (msg) => {
     }
   }
 });
-//client.login("get your own key bb");
-client.login("ODMxMjI1OTYyMzkzODk0OTM0.YHSJgA.fXXv-_ZZJ9sQBbO4boKJbdF_O6M");
+client.login("get your own key bb");
+
