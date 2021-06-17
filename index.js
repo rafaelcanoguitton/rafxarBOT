@@ -271,4 +271,4 @@ client.on("message", async (msg) => {
     }
   }
 });
-client.login("ODMxMjI1OTYyMzkzODk0OTM0.YHSJgA.5hpjN8FTDmrhmWKPKiHr_cehDvY");
+client.login("get your own key bb uwu");
