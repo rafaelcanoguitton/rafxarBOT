@@ -13,6 +13,24 @@ let days = [
   "Sabado",
   "Domingo",
 ];
+function separacomas(a){
+  var arraystring=[];
+  var placeholderstring="";
+  var iter=0;
+  for(var i=0;i<a.length;i++)
+  {
+    if(a[i]!=',')
+      placeholderstring+=a[i];
+    else
+    {
+      arraystring[iter]=placeholderstring;
+      iter++;
+      placeholderstring="";
+    }
+  }
+  arraystring[iter]=placeholderstring;
+  return arraystring;
+}
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   await mongoose
@@ -138,6 +156,11 @@ client.on("message", (msg) => {
                   console.log(curso);
                   console.log(dias);
                   console.log(horarios);
+                  console.log('Separando');
+                  let diad=separacomas(dias);
+                  let horariosd=separacomas(horarios);
+                  console.log(diad);
+                  console.log(horariosd);
                   await mongoose
                     .connect(mongoPath, {
                       useNewUrlParser: true,
@@ -147,17 +170,18 @@ client.on("message", (msg) => {
                       try {
                         const Cursos = mongoose.model("cursos", {
                           nombre: String,
-                          dias: String,
-                          horas: String,
+                          dias: [String],
+                          horas: [String],
                         });
                         const nuevocurso = new Cursos({
                           nombre: curso,
-                          dias: dias,
-                          horas: horarios,
+                          dias: diad,
+                          horas: horariosd,
                         });
-                        nuevocurso.save().then(() =>  mongoose.connection.close());
+                        nuevocurso
+                          .save()
+                          .then(() => mongoose.connection.close());
                       } finally {
-                       ;
                       }
                     });
                   msg.guild.roles
@@ -192,3 +216,4 @@ client.on("message", (msg) => {
   }
 });
 client.login("get your own key bb");
+
