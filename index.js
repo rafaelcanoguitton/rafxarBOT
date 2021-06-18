@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-const config = require("./config.json");
+const {discordKey} = require("./config.json");
 const mongoose = require("mongoose");
 const { mongoPath } = require("./config.json");
 const { isModuleNamespaceObject } = require("util/types");
@@ -293,4 +293,5 @@ client.on("message", async (msg) => {
     }
   }
 });
-client.login("ODMxMjI1OTYyMzkzODk0OTM0.YHSJgA.UbBrPyIusP7ZiwAAIgMRQI2bN24");
+//now from config.json but has to be an env variable
+client.login(discordKey);
