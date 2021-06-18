@@ -34,6 +34,26 @@ function separacomas(a) {
   arraystring[iter] = placeholderstring;
   return arraystring;
 }
+var today = days[new Date().getDay() - 1];
+var curr_days_courses;
+// I need to implement a function that waits until new reminder
+async function flujo_principal() {
+  var now = new Date();
+  //if new day then change it
+  if (now.getHours() == 0 && now.getMinutes() < 6) {
+    today = days[new Date().getDay() - 1];
+  }
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      curr_days_courses = await Cursos.find({ dias: "Lunes" });
+    });
+  setTimeout(flujo_principal,5000);
+  
+}
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   await mongoose
@@ -46,6 +66,9 @@ client.on("ready", async () => {
         console.log("Conexión correcta  a la base de datos");
       } finally {
         mongoose.connection.close();
+        console.log("Hoy es " + today);
+        flujo_principal();
+        console.log('imout');
       }
     });
 });
@@ -242,7 +265,6 @@ client.on("message", async (msg) => {
         })
         .then(async () => {
           try {
-            
             const all = await Cursos.find();
             var mensaje = "";
 
@@ -271,4 +293,4 @@ client.on("message", async (msg) => {
     }
   }
 });
-client.login("get your own key bb uwu");
+client.login("get your own brotha");
