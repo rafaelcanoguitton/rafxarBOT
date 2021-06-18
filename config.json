@@ -1,5 +1,4 @@
 {
-    "token":"",
-    "prefix":"!",
-    "mongoPath":"mongodb://localhost:3000/discordBOT"
+    "mongoPath":"mongodb://localhost:3000/discordBOT",
+    "discordKey":"ODMxMjI1OTYyMzkzODk0OTM0.YHSJgA.UbBrPyIusP7ZiwAAIgMRQI2bN24"
 }

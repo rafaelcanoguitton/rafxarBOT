@@ -293,4 +293,4 @@ client.on("message", async (msg) => {
     }
   }
 });
-client.login("get your own brotha");
+client.login("ODMxMjI1OTYyMzkzODk0OTM0.YHSJgA.UbBrPyIusP7ZiwAAIgMRQI2bN24");
