@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 //const {discordKey} = require("./config.json");
 const mongoose = require("mongoose");
+const handlers=require('commands_handlers/command.handler');
 //const { mongoPath } = require("./config.json");
 //const { isModuleNamespaceObject } = require("util/types");
 require('dotenv').config();
@@ -166,9 +167,7 @@ client.on("message", async (msg) => {
     }
     ///////////////////////////////////////////////////////
     if (msg.content === "cursos disponibles") {
-      let filter = (m) => m.author.id === msg.author.id;
-      msg.reply("¿A qué curso te gustaría inscribirte?");
-      //QUERY ALL COURSES
+      handlers.samplehandler(msg);
     }
     if (msg.content == "nuevo curso") {
       let filter = (m) => m.author.id === msg.author.id;
