@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An in-development discord bot",
   "main": "index.js",
+
   "scripts": {
     "start":"node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,7 +20,6 @@
   "homepage": "https://github.com/rafaelcanoguitton/rafxarBOT#readme",
   "dependencies": {
     "discord.js": "^12.5.3",
-    "dotenv": "^10.0.0",
     "mongoose": "^5.12.14"
   }
 }
