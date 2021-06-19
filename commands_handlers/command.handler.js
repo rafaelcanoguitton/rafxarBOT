@@ -1,7 +1,8 @@
 //Functions and db models
-require('dotenv').config();
+require("dotenv").config();
 const mongoose = require("mongoose");
-const mongoPath=process.env.mongoPath;
+const mongoPath = process.env.mongoPath;
+const Discord = require("discord.js");
 const Cursos = mongoose.model("cursos", {
   nombre: String,
   dias: [String],
@@ -159,12 +160,34 @@ function ayudahandler(msg) {
     "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D. Para saber que comandos puedes usar usa el comando: \n **>comandos**"
   );
 }
+function comandos_handler(msg) {
+  const embed = new Discord.MessageEmbed()
+    .setColor("#d92701")
+    .setTitle("Comandos")
+    .setDescription(
+      'A continuación los comandos que puedo realizar.\n Todos los comandos usan el prefijo ">"'
+    )
+    .addField(
+      "__Comandos disponibles en Grillby's__",
+      "\n**help o ayuda**: Para obtener información acerca del bot.\n**comandos**: Da una lista de comandos disponibles.\n**que dia es hoy**: Te dice que día es hoy...\n**dime los cursos disponibles**: Da una lista de los cursos disponibles\n**inscribirme en un curso**: Te inscribe en un curso ya existente\n**nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo"
+    )
+    .setFooter("Comandos rafxarBOT");
+  msg.channel.send(embed);
+}
+function quediahandler(msg){
+    let temp = "Oidia es ";
+      temp += days[new Date().getDay() - 1];
+      temp += " mierda";
+      msg.reply(temp);
+}
 module.exports = {
   samplehandler,
   nuevohandler,
   inscrihandler,
   llamaloshandler,
   ayudahandler,
+  comandos_handler,
+  quediahandler,
   Cursos, //will unexport when refactor is complete
   mongoPath,
 };

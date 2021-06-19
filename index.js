@@ -22,21 +22,6 @@ let days = [
 //   dias: [String],
 //   horas: [String],
 // });
-function separacomas(a) {
-  var arraystring = [];
-  var placeholderstring = "";
-  var iter = 0;
-  for (var i = 0; i < a.length; i++) {
-    if (a[i] != ",") placeholderstring += a[i];
-    else {
-      arraystring[iter] = placeholderstring;
-      iter++;
-      placeholderstring = "";
-    }
-  }
-  arraystring[iter] = placeholderstring;
-  return arraystring;
-}
 var today = days[new Date().getDay() - 1];
 var curr_days_courses;
 // I need to implement a function that waits until new reminder
@@ -80,12 +65,7 @@ client.on("message", async (msg) => {
   if (msg.content[0] === ">") {
     msg.content = msg.content.substring(1);
     if (msg.content === "que dia es hoy") {
-      //if (new Date().getDay() === 1) {
-      let temp = "Oidia es ";
-      temp += days[new Date().getDay() - 1];
-      temp += " mierda";
-      msg.reply(temp);
-      //}
+      handlers.quediahandler(msg);
     }
     if (msg.content === "manoyara") {
       client.guilds.cache.forEach((guild) => {
@@ -96,68 +76,13 @@ client.on("message", async (msg) => {
       handlers.ayudahandler(msg);
     }
     if (msg.content === "comandos") {
-      const embed = new Discord.MessageEmbed()
-        .setColor("#d92701")
-        .setTitle("Comandos")
-        .setDescription(
-          'A continuación los comandos que puedo realizar.\n Todos los comandos usan el prefijo ">"'
-        )
-        .addField(
-          "__Comandos disponibles en Grillby's__",
-          "\n**help o ayuda**: Para obtener información acerca del bot.\n**comandos**: Da una lista de comandos disponibles.\n**que dia es hoy**: Te dice que día es hoy...\n**dime los cursos disponibles**: Da una lista de los cursos disponibles\n**inscribirme en un curso**: Te inscribe en un curso ya existente\n**nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo"
-        )
-        .setFooter("Comandos rafxarBOT");
-      msg.channel.send(embed);
+      handlers.comandos_handler(msg);
     }
     if (msg.content == "llamalos") {
       handlers.llamaloshandler(msg);
     }
     if (msg.content === "dime los cursos disponibles") {
-      let filter = (m) => m.author.id === msg.author.id;
-      msg.channel
-        .send(`Quieres crear un rol dices: \`SI\` / \`NO\``)
-        .then(() => {
-          msg.channel
-            .awaitMessages(filter, {
-              max: 1,
-              time: 30000,
-              errors: ["time"],
-            })
-            .then((msg) => {
-              msg = msg.first();
-              if (
-                msg.content.toUpperCase() == "SI" ||
-                msg.content.toUpperCase() == "S"
-              ) {
-                msg.channel.send(`Uff perra somos a ver di pinga`).then(() => {
-                  msg.channel
-                    .awaitMessages(filter, {
-                      max: 1,
-                      time: 30000,
-                      errors: ["time"],
-                    })
-                    .then((msg) => {
-                      msg = msg.first();
-                      if (msg.content === "pinga") {
-                        msg.channel.send("jajaja gaaaa");
-                      } else {
-                        msg.reply("cagon :(");
-                      }
-                    });
-                });
-              } else if (
-                msg.content.toUpperCase() == "NO" ||
-                msg.content.toUpperCase() == "N"
-              ) {
-                msg.channel.send(`Okay`);
-              } else {
-                msg.channel.send(`Respuesta inválida`);
-              }
-            })
-            .catch((collected) => {
-              msg.channel.send("Timeout");
-            });
-        });
+      handlers.dimecursoshandler(msg);
     }
     ///////////////////////////////////////////////////////
     if (msg.content === "cursos disponibles") {
