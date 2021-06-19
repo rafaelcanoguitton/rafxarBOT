@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 //const {discordKey} = require("./config.json");
 const mongoose = require("mongoose");
-const handlers=require('commands_handlers/command.handler');
+const handlers=require('./commands_handlers/command.handler');
 //const { mongoPath } = require("./config.json");
 //const { isModuleNamespaceObject } = require("util/types");
 require('dotenv').config();
@@ -18,11 +18,11 @@ let days = [
   "Sabado",
   "Domingo",
 ];
-const Cursos = mongoose.model("cursos", {
-  nombre: String,
-  dias: [String],
-  horas: [String],
-});
+// const Cursos = mongoose.model("cursos", {
+//   nombre: String,
+//   dias: [String],
+//   horas: [String],
+// });
 function separacomas(a) {
   var arraystring = [];
   var placeholderstring = "";
@@ -53,7 +53,7 @@ async function flujo_principal() {
       useUnifiedTopology: true,
     })
     .then(async () => {
-      curr_days_courses = await Cursos.find({ dias: "Lunes" });
+      curr_days_courses = await handlers.Cursos.find({ dias: "Lunes" });
     });
   setTimeout(flujo_principal,5000);
   
@@ -113,10 +113,7 @@ client.on("message", async (msg) => {
       msg.channel.send(embed);
     }
     if (msg.content == "llamalos") {
-      let roleid = "715256258701033534";
-      msg.channel.send(
-        "llamando a todos los " + "<@&" + roleid + "> perras de mierda"
-      );
+      handlers.llamaloshandler(msg);
     }
     if (msg.content === "dime los cursos disponibles") {
       let filter = (m) => m.author.id === msg.author.id;
@@ -170,128 +167,10 @@ client.on("message", async (msg) => {
       handlers.samplehandler(msg);
     }
     if (msg.content == "nuevo curso") {
-      let filter = (m) => m.author.id === msg.author.id;
-      msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
-        msg.channel
-          .awaitMessages(filter, {
-            max: 1,
-            time: 30000,
-            errors: ["time"],
-          })
-          .then((msg) => {
-            msg = msg.first();
-            let curso = msg.content;
-            msg.reply(
-              "¿Qué dias se dicta este curso?\n\npor favor escribelos de la siguiente forma:\nLunes,Martes,Miercoles..."
-            );
-            msg.channel
-              .awaitMessages(filter, {
-                max: 1,
-                time: 30000,
-                errors: ["time"],
-              })
-              .then((msg) => {
-                msg = msg.first();
-                let dias = msg.content;
-                msg.reply(
-                  "¿A qué horas toca el curso? **(En el mismo orden que los días)**\n\nEn el siguiente formato:\n12:00,16:00,19:00..."
-                );
-                msg.channel
-                  .awaitMessages(filter, {
-                    max: 1,
-                    time: 30000,
-                    errors: ["time"],
-                  })
-                  .then(async (msg) => {
-                    msg = msg.first();
-                    let horarios = msg.content;
-                    console.log(curso);
-                    console.log(dias);
-                    console.log(horarios);
-                    console.log("Separando");
-                    let diad = separacomas(dias);
-                    let horariosd = separacomas(horarios);
-                    console.log(diad);
-                    console.log(horariosd);
-                    await mongoose
-                      .connect(mongoPath, {
-                        useNewUrlParser: true,
-                        useUnifiedTopology: true,
-                      })
-                      .then(() => {
-                        try {
-                          const nuevocurso = new Cursos({
-                            nombre: curso,
-                            dias: diad,
-                            horas: horariosd,
-                          });
-                          nuevocurso
-                            .save()
-                            .then(() => mongoose.connection.close());
-                        } finally {
-                        }
-                      });
-                    msg.guild.roles
-                      .create({
-                        data: {
-                          name: curso,
-                        },
-                        reason:
-                          "Welp. Having reminders for this course I guess",
-                      })
-                      .then(console.log.id)
-                      .catch(console.error);
-                    msg.reply("Curso ha sido creado correctamente");
-                  })
-                  .catch((collected) => {
-                    msg.channel.send("Se acabó el tiempo");
-                    console.log(collected);
-                  });
-              })
-              .catch((collected) => {
-                msg.channel.send("Se acabó el tiempo");
-                console.log(collected);
-              });
-          })
-          .catch((collected) => {
-            msg.channel.send("Se acabó el tiempo");
-            console.log(collected);
-          });
-      });
+      handlers.nuevohandler(msg);
     }
     if (msg.content === "inscribirme en un curso") {
-      await mongoose
-        .connect(mongoPath, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        })
-        .then(async () => {
-          try {
-            const all = await Cursos.find();
-            var mensaje = "";
-
-            all.forEach((element) => {
-              mensaje +=
-                "El curso: **" +
-                element.nombre +
-                "**\n" +
-                "\t" +
-                "\t" +
-                "En los días: **" +
-                element.dias +
-                "**\n" +
-                "\t" +
-                "\t" +
-                "A estas horas: **" +
-                element.horas +
-                "**\n" +
-                "\n";
-            });
-            //console.log(mensaje);
-            msg.channel.send(mensaje);
-          } finally {
-          }
-        });
+      handlers.inscrihandler(msg);
     }
   }
 });
