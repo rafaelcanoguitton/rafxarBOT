@@ -20,6 +20,7 @@
   "homepage": "https://github.com/rafaelcanoguitton/rafxarBOT#readme",
   "dependencies": {
     "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
     "mongoose": "^5.12.14"
   }
 }

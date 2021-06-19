@@ -3,7 +3,7 @@ const client = new Discord.Client();
 //const {discordKey} = require("./config.json");
 const mongoose = require("mongoose");
 //const { mongoPath } = require("./config.json");
-const { isModuleNamespaceObject } = require("util/types");
+//const { isModuleNamespaceObject } = require("util/types");
 require('dotenv').config();
 //const mongo = require("./mongo");
 const mongoPath=process.env.mongoPath;
