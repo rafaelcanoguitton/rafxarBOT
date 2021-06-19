@@ -94,9 +94,7 @@ client.on("message", async (msg) => {
       });
     }
     if (msg.content === "help" || msg.content === "ayuda") {
-      msg.channel.send(
-        "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D. Para saber que comandos puedes usar usa el comando: \n **>comandos**"
-      );
+      handlers.ayudahandler(msg);
     }
     if (msg.content === "comandos") {
       const embed = new Discord.MessageEmbed()

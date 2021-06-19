@@ -25,7 +25,7 @@ function samplehandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   msg.reply("¿A qué curso te gustaría inscribirte?");
 }
-function nuevohandler(msg) {
+async function nuevohandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
     msg.channel
@@ -112,7 +112,7 @@ function nuevohandler(msg) {
       });
   });
 }
-function inscrihandler(msg) {
+async function inscrihandler(msg) {
   await mongoose
     .connect(mongoPath, {
       useNewUrlParser: true,
