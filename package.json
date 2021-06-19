@@ -1,0 +1,25 @@
+{
+  "name": "proyecto-bot-discord",
+  "version": "1.0.0",
+  "description": "An in-development discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafaelcanoguitton/rafxarBOT.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rafaelcanoguitton/rafxarBOT/issues"
+  },
+  "homepage": "https://github.com/rafaelcanoguitton/rafxarBOT#readme",
+  "dependencies": {
+    "discord": "^0.8.2",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "mongoose": "^5.12.14"
+  }
+}

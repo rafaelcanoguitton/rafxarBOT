@@ -1,10 +1,13 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-const {discordKey} = require("./config.json");
+//const {discordKey} = require("./config.json");
 const mongoose = require("mongoose");
-const { mongoPath } = require("./config.json");
+//const { mongoPath } = require("./config.json");
 const { isModuleNamespaceObject } = require("util/types");
+require('dotenv').config();
 //const mongo = require("./mongo");
+const mongoPath=process.env.mongoPath;
+console.log(process.env.discordKey);
 let days = [
   "Lunes",
   "Martes",
@@ -294,4 +297,4 @@ client.on("message", async (msg) => {
   }
 });
 //now from config.json but has to be an env variable
-client.login(discordKey);
+client.login(process.env.discordKey);
