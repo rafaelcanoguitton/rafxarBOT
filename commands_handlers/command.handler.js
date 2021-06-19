@@ -1,5 +1,7 @@
 //Functions and db models
+require('dotenv').config();
 const mongoose = require("mongoose");
+const mongoPath=process.env.mongoPath;
 const Cursos = mongoose.model("cursos", {
   nombre: String,
   dias: [String],
@@ -164,4 +166,5 @@ module.exports = {
   llamaloshandler,
   ayudahandler,
   Cursos, //will unexport when refactor is complete
+  mongoPath,
 };

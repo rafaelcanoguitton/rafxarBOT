@@ -7,7 +7,6 @@ const handlers=require('./commands_handlers/command.handler');
 //const { isModuleNamespaceObject } = require("util/types");
 require('dotenv').config();
 //const mongo = require("./mongo");
-const mongoPath=process.env.mongoPath;
 console.log(process.env.discordKey);
 let days = [
   "Lunes",
@@ -48,7 +47,7 @@ async function flujo_principal() {
     today = days[new Date().getDay() - 1];
   }
   await mongoose
-    .connect(mongoPath, {
+    .connect(handlers.mongoPath, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
@@ -61,7 +60,7 @@ async function flujo_principal() {
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   await mongoose
-    .connect(mongoPath, {
+    .connect(handlers.mongoPath, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
