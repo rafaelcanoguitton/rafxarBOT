@@ -172,6 +172,7 @@ function ayudahandler(msg) {
       "\n**Problemas**: https://github.com/rafaelcanoguitton/rafxarBOT/issues"+
       "\n**Código fuente**: https://github.com/rafaelcanoguitton/rafxarBOT"
   );
+  msg.supressEmbeds(true);//I don't know a better way to do this
 }
 function comandos_handler(msg) {
   const embed = new Discord.MessageEmbed()
