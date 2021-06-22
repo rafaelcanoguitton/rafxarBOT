@@ -67,37 +67,46 @@ async function nuevohandler(msg) {
                 console.log(curso);
                 console.log(dias);
                 console.log(horarios);
-                console.log("Separando");
                 let diad = separacomas(dias);
                 let horariosd = separacomas(horarios);
                 console.log(diad);
                 console.log(horariosd);
-                await mongoose
-                  .connect(mongoPath, {
-                    useNewUrlParser: true,
-                    useUnifiedTopology: true,
-                  })
-                  .then(() => {
-                    try {
-                      const nuevocurso = new Cursos({
-                        nombre: curso,
-                        dias: diad,
-                        horas: horariosd,
-                      });
-                      nuevocurso.save().then(() => mongoose.connection.close());
-                    } finally {
-                    }
-                  });
-                msg.guild.roles
-                  .create({
-                    data: {
-                      name: curso,
-                    },
-                    reason: "Welp. Having reminders for this course I guess",
-                  })
-                  .then(console.log.id)
-                  .catch(console.error);
-                msg.reply("Curso ha sido creado correctamente");
+                if (diad.length > horariosd.length) {
+                  msg.reply("Pusiste más días que horarios");
+                }
+                if (diad.length < horariosd.length) {
+                  msg.reply("Pusiste más horarios que días");
+                }
+                if (diad.length == horariosd.length) {
+                  await mongoose
+                    .connect(mongoPath, {
+                      useNewUrlParser: true,
+                      useUnifiedTopology: true,
+                    })
+                    .then(() => {
+                      try {
+                        const nuevocurso = new Cursos({
+                          nombre: curso,
+                          dias: diad,
+                          horas: horariosd,
+                        });
+                        nuevocurso
+                          .save()
+                          .then(() => mongoose.connection.close());
+                      } finally {
+                      }
+                    });
+                  msg.guild.roles
+                    .create({
+                      data: {
+                        name: curso,
+                      },
+                      reason: "Welp. Having reminders for this course I guess",
+                    })
+                    .then(console.log.id)
+                    .catch(console.error);
+                  msg.reply("Curso ha sido creado correctamente");
+                }
               })
               .catch((collected) => {
                 msg.channel.send("Se acabó el tiempo");
@@ -174,11 +183,56 @@ function comandos_handler(msg) {
     .setFooter("Comandos rafxarBOT");
   msg.channel.send(embed);
 }
-function quediahandler(msg){
-    let temp = "Oidia es ";
-      temp += days[new Date().getDay() - 1];
-      temp += " mierda";
-      msg.reply(temp);
+function quediahandler(msg) {
+  let temp = "Oidia es ";
+  temp += days[new Date().getDay() - 1];
+  temp += " mierda";
+  msg.reply(temp);
+}
+function dimecursoshandler(msg) {
+  let filter = (m) => m.author.id === msg.author.id;
+  msg.channel.send(`Quieres crear un rol dices: \`SI\` / \`NO\``).then(() => {
+    msg.channel
+      .awaitMessages(filter, {
+        max: 1,
+        time: 30000,
+        errors: ["time"],
+      })
+      .then((msg) => {
+        msg = msg.first();
+        if (
+          msg.content.toUpperCase() == "SI" ||
+          msg.content.toUpperCase() == "S"
+        ) {
+          msg.channel.send(`Uff perra somos a ver di pinga`).then(() => {
+            msg.channel
+              .awaitMessages(filter, {
+                max: 1,
+                time: 30000,
+                errors: ["time"],
+              })
+              .then((msg) => {
+                msg = msg.first();
+                if (msg.content === "pinga") {
+                  msg.channel.send("jajaja gaaaa");
+                } else {
+                  msg.reply("cagon :(");
+                }
+              });
+          });
+        } else if (
+          msg.content.toUpperCase() == "NO" ||
+          msg.content.toUpperCase() == "N"
+        ) {
+          msg.channel.send(`Okay`);
+        } else {
+          msg.channel.send(`Respuesta inválida`);
+        }
+      })
+      .catch((collected) => {
+        msg.channel.send("Timeout");
+      });
+  });
 }
 module.exports = {
   samplehandler,
@@ -188,6 +242,7 @@ module.exports = {
   ayudahandler,
   comandos_handler,
   quediahandler,
+  dimecursoshandler,
   Cursos, //will unexport when refactor is complete
   mongoPath,
 };

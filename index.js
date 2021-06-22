@@ -1,12 +1,8 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-//const {discordKey} = require("./config.json");
 const mongoose = require("mongoose");
 const handlers=require('./commands_handlers/command.handler');
-//const { mongoPath } = require("./config.json");
-//const { isModuleNamespaceObject } = require("util/types");
 require('dotenv').config();
-//const mongo = require("./mongo");
 console.log(process.env.discordKey);
 let days = [
   "Lunes",
@@ -17,11 +13,6 @@ let days = [
   "Sabado",
   "Domingo",
 ];
-// const Cursos = mongoose.model("cursos", {
-//   nombre: String,
-//   dias: [String],
-//   horas: [String],
-// });
 var today = days[new Date().getDay() - 1];
 var curr_days_courses;
 // I need to implement a function that waits until new reminder
@@ -44,6 +35,13 @@ async function flujo_principal() {
 }
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  client.user.setPresence({
+    status: "idle",
+    game:{
+      name: "¡Escribe >help para ayuda!",
+      type: "STREAMING"
+    }
+  });
   await mongoose
     .connect(handlers.mongoPath, {
       useNewUrlParser: true,
@@ -54,9 +52,7 @@ client.on("ready", async () => {
         console.log("Conexión correcta  a la base de datos");
       } finally {
         mongoose.connection.close();
-        console.log("Hoy es " + today);
         flujo_principal();
-        console.log('imout');
       }
     });
 });
