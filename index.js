@@ -38,7 +38,7 @@ client.on("ready", async () => {
   client.user.setPresence({
     status: "idle",
     game:{
-      name: "¡Escribe >help para ayuda!",
+      name: ">help | rafxarBot!",
       type: "STREAMING"
     }
   });
