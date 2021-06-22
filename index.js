@@ -39,7 +39,7 @@ client.on("ready", async () => {
     status: "idle",
     activity:{
       name: `on ${client.guilds.cache.size} servers! | >help | rafxarBot!`,
-      type: "PLAYING"
+      //type: "PLAYING"
     }
   });
   await mongoose
