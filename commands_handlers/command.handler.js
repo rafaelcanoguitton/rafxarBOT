@@ -181,7 +181,7 @@ function comandos_handler(msg) {
       'A continuación los comandos que puedo realizar.\n Todos los comandos usan el prefijo ">"'
     )
     .addField(
-      `__Comandos disponibles en ${msg.guild.name}'s__`,
+      `__Comandos disponibles en ${msg.guild.name}__`,
       "\n\n**help o ayuda**: Para obtener información acerca del bot." +
         "\n**comandos**: Da una lista de comandos disponibles." +
         "\n**que dia es hoy**: Te dice que día es hoy..." +

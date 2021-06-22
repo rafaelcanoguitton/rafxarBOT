@@ -38,7 +38,7 @@ client.on("ready", async () => {
   client.user.setPresence({
     status: "idle",
     activity:{
-      name: ">help | rafxarBot!",
+      name: `on ${client.guilds.cache.size} servers! | >help | rafxarBot!`,
       type: "PLAYING"
     }
   });
@@ -93,5 +93,5 @@ client.on("message", async (msg) => {
     }
   }
 });
-//now from config.json but has to be an env variable
+//from process.env
 client.login(process.env.discordKey);
