@@ -167,12 +167,11 @@ function llamaloshandler(msg) {
 function ayudahandler(msg) {
   msg.channel.send(
     "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D." +
-      " Para saber que comandos puedes usar usa el comando: \n **>comandos**"+
+      "\n Para saber que comandos puedes usar usa el comando: \n\n **>comandos**"+
       "\n\n Si quieres revisar el repositorio de este bot o reportar un error puedes usar los siguientes enlaces:"+
-      "\n**Problemas**: https://github.com/rafaelcanoguitton/rafxarBOT/issues"+
-      "\n**Código fuente**: https://github.com/rafaelcanoguitton/rafxarBOT"
+      "\n**Problemas**: <https://github.com/rafaelcanoguitton/rafxarBOT/issues>"+
+      "\n**Código fuente**: <https://github.com/rafaelcanoguitton/rafxarBOT>"
   );
-  msg.supressEmbeds(true);//I don't know a better way to do this
 }
 function comandos_handler(msg) {
   const embed = new Discord.MessageEmbed()

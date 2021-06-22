@@ -3,7 +3,7 @@ const client = new Discord.Client();
 const mongoose = require("mongoose");
 const handlers=require('./commands_handlers/command.handler');
 require('dotenv').config();
-console.log(process.env.discordKey);
+//console.log(process.env.discordKey);
 let days = [
   "Lunes",
   "Martes",
