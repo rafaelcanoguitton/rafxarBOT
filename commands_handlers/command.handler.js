@@ -166,7 +166,11 @@ function llamaloshandler(msg) {
 }
 function ayudahandler(msg) {
   msg.channel.send(
-    "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D. Para saber que comandos puedes usar usa el comando: \n **>comandos**"
+    "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D." +
+      " Para saber que comandos puedes usar usa el comando: \n **>comandos**"+
+      "\n\n Si quieres revisar el repositorio de este bot o reportar un error puedes usar los siguientes enlaces:"+
+      "\n**Problemas**: https://github.com/rafaelcanoguitton/rafxarBOT/issues"+
+      "\n**Código fuente**: https://github.com/rafaelcanoguitton/rafxarBOT"
   );
 }
 function comandos_handler(msg) {
@@ -177,8 +181,13 @@ function comandos_handler(msg) {
       'A continuación los comandos que puedo realizar.\n Todos los comandos usan el prefijo ">"'
     )
     .addField(
-      "__Comandos disponibles en Grillby's__",
-      "\n**help o ayuda**: Para obtener información acerca del bot.\n**comandos**: Da una lista de comandos disponibles.\n**que dia es hoy**: Te dice que día es hoy...\n**dime los cursos disponibles**: Da una lista de los cursos disponibles\n**inscribirme en un curso**: Te inscribe en un curso ya existente\n**nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo"
+      `__Comandos disponibles en ${msg.guild.name}'s__`,
+      "\n**help o ayuda**: Para obtener información acerca del bot." +
+        "\n**comandos**: Da una lista de comandos disponibles." +
+        "\n**que dia es hoy**: Te dice que día es hoy..." +
+        "\n**dime los cursos disponibles**: Da una lista de los cursos disponibles" +
+        "\n**inscribirme en un curso**: Te inscribe en un curso ya existente" +
+        "\n**nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo"
     )
     .setFooter("Comandos rafxarBOT");
   msg.channel.send(embed);
