@@ -182,7 +182,7 @@ function comandos_handler(msg) {
     )
     .addField(
       `__Comandos disponibles en ${msg.guild.name}'s__`,
-      "\n**help o ayuda**: Para obtener información acerca del bot." +
+      "\n\n**help o ayuda**: Para obtener información acerca del bot." +
         "\n**comandos**: Da una lista de comandos disponibles." +
         "\n**que dia es hoy**: Te dice que día es hoy..." +
         "\n**dime los cursos disponibles**: Da una lista de los cursos disponibles" +

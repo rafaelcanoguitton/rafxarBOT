@@ -37,9 +37,9 @@ client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
     status: "idle",
-    game:{
+    activity:{
       name: ">help | rafxarBot!",
-      type: "STREAMING"
+      type: "PLAYING"
     }
   });
   await mongoose
@@ -56,6 +56,7 @@ client.on("ready", async () => {
       }
     });
 });
+//List of all commands available
 client.on("message", async (msg) => {
   //console.log(msg.content[0]);
   if (msg.content[0] === ">") {
