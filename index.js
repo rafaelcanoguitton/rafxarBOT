@@ -4,42 +4,14 @@ const mongoose = require("mongoose");
 const handlers=require('./commands_handlers/command.handler');
 require('dotenv').config();
 //console.log(process.env.discordKey);
-let days = [
-  "Lunes",
-  "Martes",
-  "Miercoles",
-  "Jueves",
-  "Viernes",
-  "Sabado",
-  "Domingo",
-];
-var today = days[new Date().getDay() - 1];
-var curr_days_courses;
-// I need to implement a function that waits until new reminder
-async function flujo_principal() {
-  var now = new Date();
-  //if new day then change it
-  if (now.getHours() == 0 && now.getMinutes() < 6) {
-    today = days[new Date().getDay() - 1];
-  }
-  await mongoose
-    .connect(handlers.mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      curr_days_courses = await handlers.Cursos.find({ dias: "Lunes" });
-    });
-  setTimeout(flujo_principal,5000);
-  
-}
+
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
     status: "idle",
     activity:{
       name: `on ${client.guilds.cache.size} servers! | >help | rafxarBot!`,
-      //type: "PLAYING"
+      type: "PLAYING"
     }
   });
   await mongoose
@@ -52,7 +24,7 @@ client.on("ready", async () => {
         console.log("Conexión correcta  a la base de datos");
       } finally {
         mongoose.connection.close();
-        flujo_principal();
+        handlers.flujo_principal();
       }
     });
 });

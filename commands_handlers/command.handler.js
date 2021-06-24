@@ -4,10 +4,41 @@ const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
 const Discord = require("discord.js");
 const Cursos = mongoose.model("cursos", {
-  nombre: String,
-  dias: [String],
-  horas: [String],
+  dia: int,
+  hora: int,
+  minutos: int,
+  datos: [],
 });
+let days = [
+  "Lunes",
+  "Martes",
+  "Miercoles",
+  "Jueves",
+  "Viernes",
+  "Sabado",
+  "Domingo",
+];
+var today = days[new Date().getDay() - 1];
+var needs_new_reminder_update = true;
+async function flujo_principal() {
+  var now = new Date();
+  if (now.getHours() == 0 && now.getMinutes() < 6) {
+    today = days[new Date().getDay() - 1];
+  }
+  if (needs_new_reminder_update) {
+    await mongoose
+      .connect(mongoPath, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then(async () => {
+        curr_days_courses = await Cursos.find({ dias: "Lunes" });
+      });
+    needs_new_reminder_update = false;
+  }
+  //console.log(curr_days_courses);
+  setTimeout(flujo_principal, 5000);
+}
 function separacomas(a) {
   var arraystring = [];
   var placeholderstring = "";
@@ -22,6 +53,19 @@ function separacomas(a) {
   }
   arraystring[iter] = placeholderstring;
   return arraystring;
+}
+function separapuntos(a) {
+  var placeholderstring = "";
+  var intstring = [];
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != ":") placeholderstring += a[i];
+    else {
+      intstring[iter] = parseInt(placeholderstring);
+      iter++;
+      placeholderstring = "";
+    }
+  }
+  return intstring;
 }
 //Actual handlers
 function samplehandler(msg) {
@@ -64,13 +108,8 @@ async function nuevohandler(msg) {
               .then(async (msg) => {
                 msg = msg.first();
                 let horarios = msg.content;
-                console.log(curso);
-                console.log(dias);
-                console.log(horarios);
                 let diad = separacomas(dias);
                 let horariosd = separacomas(horarios);
-                console.log(diad);
-                console.log(horariosd);
                 if (diad.length > horariosd.length) {
                   msg.reply("Pusiste más días que horarios");
                 }
@@ -85,15 +124,33 @@ async function nuevohandler(msg) {
                     })
                     .then(() => {
                       try {
-                        const nuevocurso = new Cursos({
-                          nombre: curso,
-                          dias: diad,
-                          horas: horariosd,
-                        });
+                        var horas=separapuntos(diad);
+                        for(var i=0;i<diad.length;i++)
+                        {
+                          var
+                          const nuevocurso=new Cursos({
+                            dia: days.indexOf(curso),
+                            hora: horas[0],
+                            minuto:horas[1],
+                          });
+                        }
+                        // const nuevocurso = new Cursos({
+                        //   nombre: curso,
+                        //   dias: diad,
+                        //   horas: horariosd,
+
+                        //   dia: days.indexOf(curso),
+                        //   hora: int,
+                        //   minutos: int,
+                        //   datos: [],
+                        // });
                         nuevocurso
                           .save()
                           .then(() => mongoose.connection.close());
                       } finally {
+                        if ((diad = today)) {
+                          needs_new_reminder_update = true;
+                        }
                       }
                     });
                   msg.guild.roles
@@ -167,9 +224,9 @@ function llamaloshandler(msg) {
 function ayudahandler(msg) {
   msg.channel.send(
     "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D." +
-      "\n Para saber que comandos puedes usar usa el comando: \n\n **>comandos**"+
-      "\n\n Si quieres revisar el repositorio de este bot o reportar un error puedes usar los siguientes enlaces:"+
-      "\n**Problemas**: <https://github.com/rafaelcanoguitton/rafxarBOT/issues>"+
+      "\n Para saber que comandos puedes usar usa el comando: \n\n **>comandos**" +
+      "\n\n Si quieres revisar el repositorio de este bot o reportar un error puedes usar los siguientes enlaces:" +
+      "\n**Problemas**: <https://github.com/rafaelcanoguitton/rafxarBOT/issues>" +
       "\n**Código fuente**: <https://github.com/rafaelcanoguitton/rafxarBOT>"
   );
 }
@@ -252,6 +309,7 @@ module.exports = {
   comandos_handler,
   quediahandler,
   dimecursoshandler,
+  flujo_principal,
   Cursos, //will unexport when refactor is complete
   mongoPath,
 };
