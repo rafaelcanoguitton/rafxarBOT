@@ -20,25 +20,35 @@ let days = [
   "Sabado",
   "Domingo",
 ];
-var today = days[new Date().getDay() - 1];
-var needs_new_reminder_update = true;
 async function flujo_principal() {
+  var curr_days_courses;
   var now = new Date();
-  if (now.getHours() == 0 && now.getMinutes() < 6) {
-    today = days[new Date().getDay() - 1];
-  }
-  if (needs_new_reminder_update) {
-    await mongoose
-      .connect(mongoPath, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      })
-      .then(async () => {
-        curr_days_courses = await Cursos.find({ dias: "Lunes" });
+  var time_for_timeout = 60 - now.getSeconds;
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      curr_days_courses = await Cursos.find({
+        dia: now.getDay() - 1,
+        hora: now.getHours(),
+        minuto: now.getMinutes(),
       });
-    needs_new_reminder_update = false;
-  }
-  //console.log(curr_days_courses);
+    });
+  // await mongoose
+  //   .connect(mongoPath, {
+  //     useNewUrlParser: true,
+  //     useUnifiedTopology: true,
+  //   })
+  //   .then(async () => {
+  //     curr_days_courses = await Cursos.find({
+  //       dia: 0,
+  //       hora: 12,
+  //       minuto: 0,
+  //     });
+  //   });
+  curr_days_courses.forEach((element)=>(console.log(element.nombre)));
   setTimeout(flujo_principal, 5000);
 }
 function separacomas(a) {
@@ -140,9 +150,9 @@ async function nuevohandler(msg) {
                           var horas = separapuntos(horariosd[i]);
                           //I've tried so many schemas but i've settled using indexes
                           // cuz I tried a Update||Create + Push on existing array
-                          // and I think that's the conflict I don't know but 
+                          // and I think that's the conflict I don't know but
                           // I'm using other approach
-                          
+
                           // Cursos.updateOne(
                           //   {
                           //     dia: days.indexOf(diad[i]),
@@ -179,9 +189,6 @@ async function nuevohandler(msg) {
                         //   .then(() => mongoose.connection.close());
                       } finally {
                         //mongoose.connection.close();
-                        if ((diad = today)) {
-                          needs_new_reminder_update = true;
-                        }
                       }
                     });
                   msg.reply("Curso ha sido creado correctamente");
