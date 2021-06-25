@@ -4,10 +4,12 @@ const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
 const Discord = require("discord.js");
 const Cursos = mongoose.model("cursos", {
-  dia: int,
-  hora: int,
-  minutos: int,
-  datos: [],
+  dia: Number,
+  hora: Number,
+  minuto: Number,
+  nombre: String,
+  canal: String,
+  rol: String,
 });
 let days = [
   "Lunes",
@@ -42,16 +44,14 @@ async function flujo_principal() {
 function separacomas(a) {
   var arraystring = [];
   var placeholderstring = "";
-  var iter = 0;
   for (var i = 0; i < a.length; i++) {
     if (a[i] != ",") placeholderstring += a[i];
     else {
-      arraystring[iter] = placeholderstring;
-      iter++;
+      arraystring.push(placeholderstring);
       placeholderstring = "";
     }
   }
-  arraystring[iter] = placeholderstring;
+  arraystring.push(placeholderstring);
   return arraystring;
 }
 function separapuntos(a) {
@@ -60,11 +60,11 @@ function separapuntos(a) {
   for (var i = 0; i < a.length; i++) {
     if (a[i] != ":") placeholderstring += a[i];
     else {
-      intstring[iter] = parseInt(placeholderstring);
-      iter++;
+      intstring.push(parseInt(placeholderstring));
       placeholderstring = "";
     }
   }
+  intstring.push(parseInt(placeholderstring));
   return intstring;
 }
 //Actual handlers
@@ -124,44 +124,66 @@ async function nuevohandler(msg) {
                     })
                     .then(() => {
                       try {
-                        var horas=separapuntos(diad);
-                        for(var i=0;i<diad.length;i++)
-                        {
-                          var
-                          const nuevocurso=new Cursos({
-                            dia: days.indexOf(curso),
+                        var roleid;
+                        msg.guild.roles
+                          .create({
+                            data: {
+                              name: curso,
+                            },
+                            reason:
+                              "Welp. Having reminders for this course I guess",
+                          })
+                          .then((role) => (roleid = role.id))
+                          .catch(console.error);
+                        for (var i = 0; i < diad.length; i++) {
+                          var arr_dat = [msg.channel, "numstesta"];
+                          var horas = separapuntos(horariosd[i]);
+                          //I've tried so many schemas but i've settled using indexes
+                          // cuz I tried a Update||Create + Push on existing array
+                          // and I think that's the conflict I don't know but 
+                          // I'm using other approach
+                          
+                          // Cursos.updateOne(
+                          //   {
+                          //     dia: days.indexOf(diad[i]),
+                          //     hora: horas[0],
+                          //     minuto: horas[1],
+                          //   },
+                          //   { datos: arr_dat },
+                          //   { upsert: true }
+                          // );
+
+                          ///Model.update({_id: id}, obj, {upsert: true, setDefaultsOnInsert: true}, cb);
+                          const nuevocurso = new Cursos({
+                            dia: days.indexOf(diad[i]),
                             hora: horas[0],
-                            minuto:horas[1],
+                            minuto: horas[1],
+                            nombre: curso,
+                            canal: msg.channel,
+                            rol: roleid,
                           });
+                          nuevocurso.save();
+                          //.then(() => mongoose.connection.close());
                         }
                         // const nuevocurso = new Cursos({
                         //   nombre: curso,
                         //   dias: diad,
                         //   horas: horariosd,
-
                         //   dia: days.indexOf(curso),
                         //   hora: int,
                         //   minutos: int,
                         //   datos: [],
                         // });
-                        nuevocurso
-                          .save()
-                          .then(() => mongoose.connection.close());
+                        // nuevocurso
+                        //   .save()
+                        //   .then(() => mongoose.connection.close());
                       } finally {
+                        //mongoose.connection.close();
                         if ((diad = today)) {
                           needs_new_reminder_update = true;
                         }
                       }
                     });
-                  msg.guild.roles
-                    .create({
-                      data: {
-                        name: curso,
-                      },
-                      reason: "Welp. Having reminders for this course I guess",
-                    })
-                    .then(console.log.id)
-                    .catch(console.error);
                   msg.reply("Curso ha sido creado correctamente");
                 }
               })
