@@ -10,20 +10,20 @@ const Cursos = mongoose.model("cursos", {
   nombre: String,
   canal: String,
   rol: String,
+  enlace: String,
 });
 let days = [
+  "Domingo",
   "Lunes",
   "Martes",
   "Miercoles",
   "Jueves",
   "Viernes",
   "Sabado",
-  "Domingo",
 ];
 async function flujo_principal() {
   var curr_days_courses;
   var now = new Date();
-  var time_for_timeout = 60 - now.getSeconds;
   await mongoose
     .connect(mongoPath, {
       useNewUrlParser: true,
@@ -31,25 +31,14 @@ async function flujo_principal() {
     })
     .then(async () => {
       curr_days_courses = await Cursos.find({
-        dia: now.getDay() - 1,
+        dia: now.getDay(),
         hora: now.getHours(),
         minuto: now.getMinutes(),
       });
     });
-  // await mongoose
-  //   .connect(mongoPath, {
-  //     useNewUrlParser: true,
-  //     useUnifiedTopology: true,
-  //   })
-  //   .then(async () => {
-  //     curr_days_courses = await Cursos.find({
-  //       dia: 0,
-  //       hora: 12,
-  //       minuto: 0,
-  //     });
-  //   });
-  curr_days_courses.forEach((element)=>(console.log(element.nombre)));
-  setTimeout(flujo_principal, 5000);
+  curr_days_courses.forEach((element) => console.log(element.nombre));
+  var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
+  setTimeout(flujo_principal, time_for_timeout);
 }
 function separacomas(a) {
   var arraystring = [];
@@ -145,6 +134,7 @@ async function nuevohandler(msg) {
                           })
                           .then((role) => (roleid = role.id))
                           .catch(console.error);
+                        console.log(roleid);
                         for (var i = 0; i < diad.length; i++) {
                           var arr_dat = [msg.channel, "numstesta"];
                           var horas = separapuntos(horariosd[i]);
@@ -152,18 +142,6 @@ async function nuevohandler(msg) {
                           // cuz I tried a Update||Create + Push on existing array
                           // and I think that's the conflict I don't know but
                           // I'm using other approach
-
-                          // Cursos.updateOne(
-                          //   {
-                          //     dia: days.indexOf(diad[i]),
-                          //     hora: horas[0],
-                          //     minuto: horas[1],
-                          //   },
-                          //   { datos: arr_dat },
-                          //   { upsert: true }
-                          // );
-
-                          ///Model.update({_id: id}, obj, {upsert: true, setDefaultsOnInsert: true}, cb);
                           const nuevocurso = new Cursos({
                             dia: days.indexOf(diad[i]),
                             hora: horas[0],
@@ -175,18 +153,6 @@ async function nuevohandler(msg) {
                           nuevocurso.save();
                           //.then(() => mongoose.connection.close());
                         }
-                        // const nuevocurso = new Cursos({
-                        //   nombre: curso,
-                        //   dias: diad,
-                        //   horas: horariosd,
-                        //   dia: days.indexOf(curso),
-                        //   hora: int,
-                        //   minutos: int,
-                        //   datos: [],
-                        // });
-                        // nuevocurso
-                        //   .save()
-                        //   .then(() => mongoose.connection.close());
                       } finally {
                         //mongoose.connection.close();
                       }
