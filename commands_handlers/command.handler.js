@@ -116,48 +116,64 @@ async function nuevohandler(msg) {
                   msg.reply("Pusiste más horarios que días");
                 }
                 if (diad.length == horariosd.length) {
-                  await mongoose
-                    .connect(mongoPath, {
-                      useNewUrlParser: true,
-                      useUnifiedTopology: true,
+                  msg.reply("¿Cual es el enlace de la reunión?");
+                  msg.channel
+                    .awaitMessages(filter, {
+                      max: 1,
+                      time: 30000,
+                      errors: ["time"],
                     })
-                    .then(() => {
-                      try {
-                        var roleid;
-                        msg.guild.roles
-                          .create({
-                            data: {
-                              name: curso,
-                            },
-                            reason:
-                              "Welp. Having reminders for this course I guess",
-                          })
-                          .then((role) => (roleid = role.id))
-                          .catch(console.error);
-                        console.log(roleid);
-                        for (var i = 0; i < diad.length; i++) {
-                          var arr_dat = [msg.channel, "numstesta"];
-                          var horas = separapuntos(horariosd[i]);
-                          //I've tried so many schemas but i've settled using indexes
-                          // cuz I tried a Update||Create + Push on existing array
-                          // and I think that's the conflict I don't know but
-                          // I'm using other approach
-                          const nuevocurso = new Cursos({
-                            dia: days.indexOf(diad[i]),
-                            hora: horas[0],
-                            minuto: horas[1],
-                            nombre: curso,
-                            canal: msg.channel,
-                            rol: roleid,
-                          });
-                          nuevocurso.save();
-                          //.then(() => mongoose.connection.close());
-                        }
-                      } finally {
-                        //mongoose.connection.close();
-                      }
+                    .then(async (msg) => {
+                      msg = msg.first();
+                      let enlace = msg.content;
+                      await mongoose
+                        .connect(mongoPath, {
+                          useNewUrlParser: true,
+                          useUnifiedTopology: true,
+                        })
+                        .then(() => {
+                          try {
+                            var roleid;
+                            msg.guild.roles
+                              .create({
+                                data: {
+                                  name: curso,
+                                },
+                                reason:
+                                  "Welp. Having reminders for this course I guess",
+                              })
+                              .then((role) => (roleid = role.id))
+                              .catch(console.error);
+                            console.log(roleid);
+                            for (var i = 0; i < diad.length; i++) {
+                              var arr_dat = [msg.channel, "numstesta"];
+                              var horas = separapuntos(horariosd[i]);
+                              //I've tried so many schemas but i've settled using indexes
+                              // cuz I tried a Update||Create + Push on existing array
+                              // and I think that's the conflict I don't know but
+                              // I'm using other approach
+                              const nuevocurso = new Cursos({
+                                dia: days.indexOf(diad[i]),
+                                hora: horas[0],
+                                minuto: horas[1],
+                                nombre: curso,
+                                canal: msg.channel,
+                                rol: roleid,
+                                enlace:enlace
+                              });
+                              nuevocurso.save();
+                              //.then(() => mongoose.connection.close());
+                            }
+                          } finally {
+                            //mongoose.connection.close();
+                          }
+                        });
+                      msg.reply("Curso ha sido creado correctamente");
+                    })
+                    .catch((collected) => {
+                      msg.channel.send("Se acabó el tiempo");
+                      console.log(collected);
                     });
-                  msg.reply("Curso ha sido creado correctamente");
                 }
               })
               .catch((collected) => {
@@ -308,3 +324,46 @@ module.exports = {
   Cursos, //will unexport when refactor is complete
   mongoPath,
 };
+
+// await mongoose
+//                     .connect(mongoPath, {
+//                       useNewUrlParser: true,
+//                       useUnifiedTopology: true,
+//                     })
+//                     .then(() => {
+//                       try {
+//                         var roleid;
+//                         msg.guild.roles
+//                           .create({
+//                             data: {
+//                               name: curso,
+//                             },
+//                             reason:
+//                               "Welp. Having reminders for this course I guess",
+//                           })
+//                           .then((role) => (roleid = role.id))
+//                           .catch(console.error);
+//                         console.log(roleid);
+//                         for (var i = 0; i < diad.length; i++) {
+//                           var arr_dat = [msg.channel, "numstesta"];
+//                           var horas = separapuntos(horariosd[i]);
+//                           //I've tried so many schemas but i've settled using indexes
+//                           // cuz I tried a Update||Create + Push on existing array
+//                           // and I think that's the conflict I don't know but
+//                           // I'm using other approach
+//                           const nuevocurso = new Cursos({
+//                             dia: days.indexOf(diad[i]),
+//                             hora: horas[0],
+//                             minuto: horas[1],
+//                             nombre: curso,
+//                             canal: msg.channel,
+//                             rol: roleid,
+//                           });
+//                           nuevocurso.save();
+//                           //.then(() => mongoose.connection.close());
+//                         }
+//                       } finally {
+//                         //mongoose.connection.close();
+//                       }
+//                     });
+//                   msg.reply("Curso ha sido creado correctamente");
