@@ -159,7 +159,7 @@ async function nuevohandler(msg) {
                                 nombre: curso,
                                 canal: msg.channel,
                                 rol: roleid,
-                                enlace:enlace
+                                enlace: enlace,
                               });
                               nuevocurso.save();
                               //.then(() => mongoose.connection.close());
@@ -200,27 +200,53 @@ async function inscrihandler(msg) {
     })
     .then(async () => {
       try {
-        const all = await Cursos.find();
+        const all = await Cursos.aggregate([
+          {
+            $group: {
+              _id: "$nombre",
+              fieldN: {
+                $push: { dias: "$dia", horas: "$hora", minutos: "$minuto" },
+              },
+            },
+          },
+        ]);
         var mensaje = "";
-
         all.forEach((element) => {
+
+          var deis = "";
+          var hors = "";
+          element.fieldN.forEach((elementa) => {
+            deis += days[elementa.dias];
+            deis += " , ";
+            if (elementa.horas == 0) {
+              hors += "00:";
+            } else {
+              hors += elementa.horas.toString();
+              hors += ":";
+            }
+            if (elementa.minutos == 0) {
+              hors += "00";
+              hors+=" , ";
+            } else {
+              hors += elementa.minutos.toString();
+              hors+=" , ";
+            }
+          });
+          deis = deis.slice(0, -2);
+          hors = hors.slice(0, -2);
           mensaje +=
             "El curso: **" +
-            element.nombre +
-            "**\n" +
+            element._id +
             "\t" +
             "\t" +
             "En los días: **" +
-            element.dias +
-            "**\n" +
+            deis +
             "\t" +
             "\t" +
             "A estas horas: **" +
-            element.horas +
-            "**\n" +
-            "\n";
+            hors +
+            "**\n";
         });
-        //console.log(mensaje);
         msg.channel.send(mensaje);
       } finally {
       }
@@ -321,49 +347,5 @@ module.exports = {
   quediahandler,
   dimecursoshandler,
   flujo_principal,
-  Cursos, //will unexport when refactor is complete
   mongoPath,
 };
-
-// await mongoose
-//                     .connect(mongoPath, {
-//                       useNewUrlParser: true,
-//                       useUnifiedTopology: true,
-//                     })
-//                     .then(() => {
-//                       try {
-//                         var roleid;
-//                         msg.guild.roles
-//                           .create({
-//                             data: {
-//                               name: curso,
-//                             },
-//                             reason:
-//                               "Welp. Having reminders for this course I guess",
-//                           })
-//                           .then((role) => (roleid = role.id))
-//                           .catch(console.error);
-//                         console.log(roleid);
-//                         for (var i = 0; i < diad.length; i++) {
-//                           var arr_dat = [msg.channel, "numstesta"];
-//                           var horas = separapuntos(horariosd[i]);
-//                           //I've tried so many schemas but i've settled using indexes
-//                           // cuz I tried a Update||Create + Push on existing array
-//                           // and I think that's the conflict I don't know but
-//                           // I'm using other approach
-//                           const nuevocurso = new Cursos({
-//                             dia: days.indexOf(diad[i]),
-//                             hora: horas[0],
-//                             minuto: horas[1],
-//                             nombre: curso,
-//                             canal: msg.channel,
-//                             rol: roleid,
-//                           });
-//                           nuevocurso.save();
-//                           //.then(() => mongoose.connection.close());
-//                         }
-//                       } finally {
-//                         //mongoose.connection.close();
-//                       }
-//                     });
-//                   msg.reply("Curso ha sido creado correctamente");
