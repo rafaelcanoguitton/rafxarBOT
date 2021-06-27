@@ -211,8 +211,8 @@ async function inscrihandler(msg) {
           },
         ]);
         var mensaje = "";
+        var count=1;
         all.forEach((element) => {
-
           var deis = "";
           var hors = "";
           element.fieldN.forEach((elementa) => {
@@ -235,6 +235,7 @@ async function inscrihandler(msg) {
           deis = deis.slice(0, -2);
           hors = hors.slice(0, -2);
           mensaje +=
+            "**"+count.toString()+"** : " +
             "El curso: **" +
             element._id +
             "\t" +
@@ -246,6 +247,7 @@ async function inscrihandler(msg) {
             "A estas horas: **" +
             hors +
             "**\n";
+          count++;
         });
         msg.channel.send(mensaje);
       } finally {
