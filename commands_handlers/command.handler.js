@@ -140,7 +140,7 @@ async function nuevohandler(msg) {
                           useNewUrlParser: true,
                           useUnifiedTopology: true,
                         })
-                        .then(() => {
+                        .then(async () => {
                           try {
                             var roleid;
                             await msg.guild.roles
