@@ -39,9 +39,12 @@ async function flujo_principal(client) {
     });
   curr_days_courses.forEach((element) => {
     //console.log(element.nombre);
-    client.channels.cache.get(element.canal).send('Gente de '+element.rol+' tienen clases!.');
-    client.channels.cache.get(element.canal).send('Su enlace es el siguiente: '+ element.enlace);
-
+    client.channels.cache
+      .get(element.canal)
+      .send("Gente de " + element.rol + " tienen clases!.");
+    client.channels.cache
+      .get(element.canal)
+      .send("Su enlace es el siguiente: " + element.enlace);
   });
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal, time_for_timeout);
@@ -199,6 +202,7 @@ async function nuevohandler(msg) {
   });
 }
 async function inscrihandler(msg) {
+  let filter = (m) => m.author.id === msg.author.id;
   await mongoose
     .connect(mongoPath, {
       useNewUrlParser: true,
@@ -266,13 +270,25 @@ async function inscrihandler(msg) {
           msg.reply(
             "Indique el número de curso al que le gustaría matricularse"
           );
-          msg = msg.first();
-          if (parseInt(msg) <= all.length + 1) {
-            msg.member.addRole(all[parseInt(msg).rol]);
-            msg.reply("¡Has sido matriculado exitosamente!");
-          } else {
-            msg.reply("Fuera del rango.");
-          }
+          msg.channel
+            .awaitMessages(filter, {
+              max: 1,
+              time: 30000,
+              errors: ["time"],
+            })
+            .then(async (msg) => {
+              msg = msg.first();
+              if (parseInt(msg) <= all.length + 1) {
+                // msg.member.addRole(all[parseInt(msg) - 1].rol);
+                console.log(all[0].fieldN[0]);
+                let role = msg.guild.roles.cache.find(r => r.id === all[parseInt(msg) - 1].rol);
+                console.log(role);
+                msg.author.roles.add(role);
+                msg.reply("¡Has sido matriculado exitosamente!");
+              } else {
+                msg.reply("Fuera del rango.");
+              }
+            });
         });
       } finally {
       }
