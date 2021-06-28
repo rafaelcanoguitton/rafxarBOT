@@ -153,7 +153,6 @@ async function nuevohandler(msg) {
                               })
                               .then((role) => (roleid = role))
                               .catch(console.error);
-                            console.log(roleid);
                             for (var i = 0; i < diad.length; i++) {
                               var horas = separapuntos(horariosd[i]);
                               //I've tried so many schemas but i've settled using indexes
@@ -284,7 +283,7 @@ async function inscrihandler(msg) {
                   // msg.member.addRole(all[parseInt(msg) - 1].rol);
                   console.log(all[parseInt(msg) - 1].fieldN[0].rol);
                   let role = msg.guild.roles.cache.find(
-                    (r) => r.id === all[parseInt(msg) - 1].rol
+                    (r) => r.id === all[parseInt(msg) - 1].fieldN[0].rol
                   );
                   console.log(role);
                   msg.author.roles.add(role);
