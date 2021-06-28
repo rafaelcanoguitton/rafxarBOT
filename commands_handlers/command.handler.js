@@ -1,5 +1,4 @@
 //Functions and db models
-//testing vscode ssh passphrase
 require("dotenv").config();
 const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
