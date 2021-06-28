@@ -143,7 +143,7 @@ async function nuevohandler(msg) {
                         .then(() => {
                           try {
                             var roleid;
-                            msg.guild.roles
+                            await msg.guild.roles
                               .create({
                                 data: {
                                   name: curso,
@@ -151,11 +151,10 @@ async function nuevohandler(msg) {
                                 reason:
                                   "Welp. Having reminders for this course I guess",
                               })
-                              .then((role) => (roleid = role.id))
+                              .then((role) => (roleid = role))
                               .catch(console.error);
                             console.log(roleid);
                             for (var i = 0; i < diad.length; i++) {
-                              var arr_dat = [msg.channel, "numstesta"];
                               var horas = separapuntos(horariosd[i]);
                               //I've tried so many schemas but i've settled using indexes
                               // cuz I tried a Update||Create + Push on existing array
