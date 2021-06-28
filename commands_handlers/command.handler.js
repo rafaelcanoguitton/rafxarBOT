@@ -225,7 +225,12 @@ async function inscrihandler(msg) {
             },
           },
         ]);
-        var mensaje = "";
+        if(all.length===0)
+        {
+          msg.channel.send('Aún no existe ningún curso.');
+        }
+        else{
+          var mensaje = "";
         var count = 1;
         all.forEach((element) => {
           var deis = "";
@@ -290,6 +295,7 @@ async function inscrihandler(msg) {
               }
             });
         });
+        }
       } finally {
       }
     });
