@@ -22,7 +22,7 @@ let days = [
   "Viernes",
   "Sabado",
 ];
-async function flujo_principal() {
+async function flujo_principal(client) {
   var curr_days_courses;
   var now = new Date();
   await mongoose
@@ -37,7 +37,12 @@ async function flujo_principal() {
         minuto: now.getMinutes(),
       });
     });
-  curr_days_courses.forEach((element) => console.log(element.nombre));
+  curr_days_courses.forEach((element) => {
+    //console.log(element.nombre);
+    client.channels.cache.get(element.canal).send('Gente de '+element.rol+' tienen clases!.');
+    client.channels.cache.get(element.canal).send('Su enlace es el siguiente: '+ element.enlace);
+
+  });
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal, time_for_timeout);
 }
@@ -206,7 +211,12 @@ async function inscrihandler(msg) {
             $group: {
               _id: "$nombre",
               fieldN: {
-                $push: { dias: "$dia", horas: "$hora", minutos: "$minuto",rol:"$rol" },
+                $push: {
+                  dias: "$dia",
+                  horas: "$hora",
+                  minutos: "$minuto",
+                  rol: "$rol",
+                },
               },
             },
           },
@@ -257,13 +267,11 @@ async function inscrihandler(msg) {
             "Indique el número de curso al que le gustaría matricularse"
           );
           msg = msg.first();
-          if(parseInt(msg)<=(all.length+1))
-          {
+          if (parseInt(msg) <= all.length + 1) {
             msg.member.addRole(all[parseInt(msg).rol]);
-            msg.reply('¡Has sido matriculado exitosamente!');
-          }
-          else{
-            msg.reply('Fuera del rango.');
+            msg.reply("¡Has sido matriculado exitosamente!");
+          } else {
+            msg.reply("Fuera del rango.");
           }
         });
       } finally {

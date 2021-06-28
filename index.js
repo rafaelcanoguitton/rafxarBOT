@@ -24,7 +24,7 @@ client.on("ready", async () => {
         console.log("Conexión correcta  a la base de datos");
       } finally {
         mongoose.connection.close();
-        handlers.flujo_principal();
+        handlers.flujo_principal(client);
       }
     });
 });
