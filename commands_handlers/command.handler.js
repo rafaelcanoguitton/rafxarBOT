@@ -1,5 +1,4 @@
 //Functions and db models
-//----Welcome to handlers---
 require("dotenv").config();
 const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
