@@ -225,76 +225,76 @@ async function inscrihandler(msg) {
             },
           },
         ]);
-        if(all.length===0)
-        {
-          msg.channel.send('Aún no existe ningún curso.');
-        }
-        else{
+        if (all.length === 0) {
+          msg.channel.send("Aún no existe ningún curso.");
+        } else {
           var mensaje = "";
-        var count = 1;
-        all.forEach((element) => {
-          var deis = "";
-          var hors = "";
-          element.fieldN.forEach((elementa) => {
-            deis += days[elementa.dias];
-            deis += " , ";
-            if (elementa.horas == 0) {
-              hors += "00:";
-            } else {
-              hors += elementa.horas.toString();
-              hors += ":";
-            }
-            if (elementa.minutos == 0) {
-              hors += "00";
-              hors += " , ";
-            } else {
-              hors += elementa.minutos.toString();
-              hors += " , ";
-            }
-          });
-          deis = deis.slice(0, -2);
-          hors = hors.slice(0, -2);
-          mensaje +=
-            "**" +
-            count.toString() +
-            "** : " +
-            "El curso: **" +
-            element._id +
-            "\t" +
-            "\t" +
-            "En los días: **" +
-            deis +
-            "\t" +
-            "\t" +
-            "A estas horas: **" +
-            hors +
-            "**\n";
-          count++;
-        });
-        msg.channel.send(mensaje).then(() => {
-          msg.reply(
-            "Indique el número de curso al que le gustaría matricularse"
-          );
-          msg.channel
-            .awaitMessages(filter, {
-              max: 1,
-              time: 30000,
-              errors: ["time"],
-            })
-            .then(async (msg) => {
-              msg = msg.first();
-              if (parseInt(msg) <= all.length + 1) {
-                // msg.member.addRole(all[parseInt(msg) - 1].rol);
-                console.log(all[0].fieldN[0]);
-                let role = msg.guild.roles.cache.find(r => r.id === all[parseInt(msg) - 1].rol);
-                console.log(role);
-                msg.author.roles.add(role);
-                msg.reply("¡Has sido matriculado exitosamente!");
+          var count = 1;
+          all.forEach((element) => {
+            var deis = "";
+            var hors = "";
+            element.fieldN.forEach((elementa) => {
+              deis += days[elementa.dias];
+              deis += " , ";
+              if (elementa.horas == 0) {
+                hors += "00:";
               } else {
-                msg.reply("Fuera del rango.");
+                hors += elementa.horas.toString();
+                hors += ":";
+              }
+              if (elementa.minutos == 0) {
+                hors += "00";
+                hors += " , ";
+              } else {
+                hors += elementa.minutos.toString();
+                hors += " , ";
               }
             });
-        });
+            deis = deis.slice(0, -2);
+            hors = hors.slice(0, -2);
+            mensaje +=
+              "**" +
+              count.toString() +
+              "** : " +
+              "El curso: **" +
+              element._id +
+              "\t" +
+              "\t" +
+              "En los días: **" +
+              deis +
+              "\t" +
+              "\t" +
+              "A estas horas: **" +
+              hors +
+              "**\n";
+            count++;
+          });
+          msg.channel.send(mensaje).then(() => {
+            msg.reply(
+              "Indique el número de curso al que le gustaría matricularse"
+            );
+            msg.channel
+              .awaitMessages(filter, {
+                max: 1,
+                time: 30000,
+                errors: ["time"],
+              })
+              .then(async (msg) => {
+                msg = msg.first();
+                if (parseInt(msg) <= all.length + 1) {
+                  // msg.member.addRole(all[parseInt(msg) - 1].rol);
+                  console.log(all[parseInt(msg) - 1].fieldN[0].rol);
+                  let role = msg.guild.roles.cache.find(
+                    (r) => r.id === all[parseInt(msg) - 1].rol
+                  );
+                  console.log(role);
+                  msg.author.roles.add(role);
+                  msg.reply("¡Has sido matriculado exitosamente!");
+                } else {
+                  msg.reply("Fuera del rango.");
+                }
+              });
+          });
         }
       } finally {
       }
