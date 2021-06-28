@@ -3,6 +3,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
 const Discord = require("discord.js");
+const { parse } = require("dotenv");
 const Cursos = mongoose.model("cursos", {
   dia: Number,
   hora: Number,
@@ -205,13 +206,13 @@ async function inscrihandler(msg) {
             $group: {
               _id: "$nombre",
               fieldN: {
-                $push: { dias: "$dia", horas: "$hora", minutos: "$minuto" },
+                $push: { dias: "$dia", horas: "$hora", minutos: "$minuto",rol:"$rol" },
               },
             },
           },
         ]);
         var mensaje = "";
-        var count=1;
+        var count = 1;
         all.forEach((element) => {
           var deis = "";
           var hors = "";
@@ -226,16 +227,18 @@ async function inscrihandler(msg) {
             }
             if (elementa.minutos == 0) {
               hors += "00";
-              hors+=" , ";
+              hors += " , ";
             } else {
               hors += elementa.minutos.toString();
-              hors+=" , ";
+              hors += " , ";
             }
           });
           deis = deis.slice(0, -2);
           hors = hors.slice(0, -2);
           mensaje +=
-            "**"+count.toString()+"** : " +
+            "**" +
+            count.toString() +
+            "** : " +
             "El curso: **" +
             element._id +
             "\t" +
@@ -249,7 +252,20 @@ async function inscrihandler(msg) {
             "**\n";
           count++;
         });
-        msg.channel.send(mensaje);
+        msg.channel.send(mensaje).then(() => {
+          msg.reply(
+            "Indique el número de curso al que le gustaría matricularse"
+          );
+          msg = msg.first();
+          if(parseInt(msg)<=(all.length+1))
+          {
+            msg.member.addRole(all[parseInt(msg).rol]);
+            msg.reply('¡Has sido matriculado exitosamente!');
+          }
+          else{
+            msg.reply('Fuera del rango.');
+          }
+        });
       } finally {
       }
     });
