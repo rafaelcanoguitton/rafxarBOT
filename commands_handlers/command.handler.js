@@ -281,12 +281,30 @@ async function inscrihandler(msg) {
                 msg = msg.first();
                 if (parseInt(msg) <= all.length + 1) {
                   // msg.member.addRole(all[parseInt(msg) - 1].rol);
-                  console.log(all[parseInt(msg) - 1].fieldN[0].rol);
-                  let role = msg.guild.roles.cache.find(
-                    (r) => r.id === all[parseInt(msg) - 1].fieldN[0].rol
+                  console.log(
+                    all[parseInt(msg) - 1].fieldN[0].rol
+                      .substring(3)
+                      .slice(0, -1)
                   );
-                  console.log(role);
-                  msg.author.roles.add(role);
+                  let role = msg.guild.roles.cache.find(
+                    (r) =>
+                      r.id ===
+                      all[parseInt(msg) - 1].fieldN[0].rol
+                        .substring(3)
+                        .slice(0, -1)
+                  );
+                  if (
+                    !msg.member.roles.cache.some((rol) => rol.id === role.id)
+                  ) {
+                    msg.member.roles
+                      .add(role.id)
+                      .then(
+                        console.log(
+                          `Succesfuly added role to member ${msg.author.tag}`
+                        )
+                      )
+                      .catch(console.error);
+                  }
                   msg.reply("¡Has sido matriculado exitosamente!");
                 } else {
                   msg.reply("Fuera del rango.");
