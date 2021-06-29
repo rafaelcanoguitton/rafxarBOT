@@ -38,17 +38,20 @@ async function flujo_principal(client) {
       });
     });
   curr_days_courses.forEach((element) => {
-    //console.log(element.nombre);
+    console.log(element.nombre);
+    console.log(
+      client.channels.cache.get(element.canal.substring(2).slice(0, -1))
+    );
     client.channels.cache
-      .get(element.canal)
+      .get(element.canal.substring(2).slice(0, -1))
       .send("Gente de " + element.rol + " tienen clases!.");
     client.channels.cache
-      .get(element.canal)
+      .get(element.canal.substring(2).slice(0, -1))
       .send("Su enlace es el siguiente: " + element.enlace);
   });
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
-  setTimeout(flujo_principal, time_for_timeout);
-}
+  setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
+} //I also learned that you need to use bind if not it doesn't work
 function separacomas(a) {
   var arraystring = [];
   var placeholderstring = "";
