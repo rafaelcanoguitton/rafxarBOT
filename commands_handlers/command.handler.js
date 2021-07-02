@@ -13,6 +13,10 @@ const Cursos = mongoose.model("cursos", {
   rol: String,
   enlace: String,
 });
+/**
+ * This is simply an array to parse
+ * string written days to indexes
+ */
 let days = [
   "Domingo",
   "Lunes",
@@ -22,6 +26,12 @@ let days = [
   "Viernes",
   "Sabado",
 ];
+/**
+ * This function queries the database with day hour and minute on
+ * mongoDB database, these having 1 normal index and other with 
+ * a multi-index so it's at least a bit optimized.
+ * I think this is a proper solution
+ */
 async function flujo_principal(client) {
   var curr_days_courses;
   var now = new Date();
@@ -49,6 +59,11 @@ async function flujo_principal(client) {
       .get(element.canal.substring(2).slice(0, -1))
       .send("Su enlace es el siguiente: " + element.enlace);
   });
+  //THIS TESTING SERVERSIDE TIME AND HOUR WILL REMOVE
+  console.log("hora ",now.getHours())
+  console.log("minuto: ",now.getMinutes())
+
+
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
 } //I also learned that you need to use bind if not it doesn't work
