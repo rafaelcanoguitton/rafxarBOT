@@ -28,7 +28,7 @@ let days = [
 ];
 /**
  * This function queries the database with day hour and minute on
- * mongoDB database, these having 1 normal index and other with 
+ * mongoDB database, these having 1 normal index and other with
  * a multi-index so it's at least a bit optimized.
  * I think this is a proper solution
  */
@@ -60,9 +60,11 @@ async function flujo_principal(client) {
       .send("Su enlace es el siguiente: " + element.enlace);
   });
   //THIS TESTING SERVERSIDE TIME AND HOUR WILL REMOVE
-  console.log("hora ",now.getHours())
-  console.log("minuto: ",now.getMinutes())
+  utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  nd = new Date(utc + 3600000 * '-5');
 
+  console.log("hora ", nd.getHours());
+  console.log("minuto: ", nd.getMinutes());
 
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
