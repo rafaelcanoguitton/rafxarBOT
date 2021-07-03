@@ -27,14 +27,17 @@ let days = [
   "Sabado",
 ];
 /**
- * This function queries the database with day hour and minute on
+ * This function queries the database with current day hour and minute on
  * mongoDB database, these having 1 normal index and other with
  * a multi-index so it's at least a bit optimized.
  * I think this is a proper solution
+ * @param {Discord.client} client discord client so that it can send message to role of specific channel
  */
 async function flujo_principal(client) {
   var curr_days_courses;
-  var now = new Date();
+  var now = new Date(); //Getting system date
+  utc = now.getTime() + now.getTimezoneOffset() * 60000; //Converting time to miliseconds
+  nd = new Date(utc + 3600000 * "-5"); //Using Peru offset, could change depending if I deploy on multiple servers
   await mongoose
     .connect(mongoPath, {
       useNewUrlParser: true,
@@ -42,16 +45,16 @@ async function flujo_principal(client) {
     })
     .then(async () => {
       curr_days_courses = await Cursos.find({
-        dia: now.getDay(),
-        hora: now.getHours(),
-        minuto: now.getMinutes(),
+        dia: nd.getDay(),
+        hora: nd.getHours(),
+        minuto: nd.getMinutes(),
       });
     });
   curr_days_courses.forEach((element) => {
-    console.log(element.nombre);
-    console.log(
-      client.channels.cache.get(element.canal.substring(2).slice(0, -1))
-    );
+    // console.log(element.nombre);
+    // console.log(
+    //   client.channels.cache.get(element.canal.substring(2).slice(0, -1))
+    // );
     client.channels.cache
       .get(element.canal.substring(2).slice(0, -1))
       .send("Gente de " + element.rol + " tienen clases!.");
@@ -59,13 +62,6 @@ async function flujo_principal(client) {
       .get(element.canal.substring(2).slice(0, -1))
       .send("Su enlace es el siguiente: " + element.enlace);
   });
-  //THIS TESTING SERVERSIDE TIME AND HOUR WILL REMOVE
-  utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  nd = new Date(utc + 3600000 * '-5');
-
-  console.log("hora ", nd.getHours());
-  console.log("minuto: ", nd.getMinutes());
-
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
 } //I also learned that you need to use bind if not it doesn't work

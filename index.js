@@ -33,9 +33,13 @@ client.on("message", async (msg) => {
   //console.log(msg.content[0]);
   if (msg.content[0] === ">") {
     msg.content = msg.content.substring(1);
+    //Untouchable legacy
     if (msg.content === "que dia es hoy") {
       handlers.quediahandler(msg);
     }
+    // I guess for debugging
+    // List every server id and name
+    // the bot is in for debugging purposes
     if (msg.content === "manoyara") {
       client.guilds.cache.forEach((guild) => {
         console.log(`${guild.name} | ${guild.id}`);
