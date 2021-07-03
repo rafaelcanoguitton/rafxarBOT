@@ -113,7 +113,7 @@ async function nuevohandler(msg) {
     })
     .then(async () => {
       canalFijado.exists({ _id_sv: msg.guild.id }, function (err, result) {
-        if (err) {
+        if (!result) {
           msg.reply(
             "Por favor, primero fija un canal para mandar los recordatorios." +
               "/n" +
