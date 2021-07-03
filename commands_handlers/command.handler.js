@@ -18,8 +18,8 @@ const Cursos = mongoose.model("cursos", {
 /** Channel to send reminder messages
  */
 const canalFijado = mongoose.model("canalfijado", {
-  id_sv: String,
-  id_canal: String,
+  _id_sv: String,
+  _id_canal: String,
 });
 /**
  * This is simply an array to parse
@@ -112,7 +112,7 @@ async function nuevohandler(msg) {
       useUnifiedTopology: true,
     })
     .then(async () => {
-      Cursos.exists({ name: "Rambo" }, function (err, result) {
+      canalFijado.exists({ _id_sv: msg.guild.id }, function (err, result) {
         if (err) {
           msg.reply(
             "Por favor, primero fija un canal para mandar los recordatorios." +
