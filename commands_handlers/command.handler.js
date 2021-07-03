@@ -53,41 +53,21 @@ async function flujo_principal(client) {
     })
     .then(async () => {
       curr_days_courses = await Cursos.find({
-        dia: 6,
-        hora: 1,
-        minuto: 8,
+        dia: nd.getDay(),
+        hora: nd.getHours(),
+        minuto: nd.getMinutes(),
       });
     });
   curr_days_courses.forEach(async (element) => {
-    // console.log(element.nombre);
-    // console.log(
-    //   client.channels.cache.get(element.canal.substring(2).slice(0, -1))
-    // );
     console.log(element.server);
-    await mongoose
-      .connect(mongoPath, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      })
-      .then(async () => {
-        canalFijado.find({ _id_sv: element.server.toString() }, function (err, result) {
-          console.log(result);
-        });
-        canalFijado.find({}, function (err, result) {
-          console.log(result);
-        });
-      });
-    // await canalFijado.findOne(
-    //   { _id_sv: element.server },
-    //   function (err, result) {
-    //     client.channels.cache
-    //       .get(result._id_canal)
-    //       .send("Gente de " + element.rol + " tienen clases!.");
-    //     client.channels.cache
-    //       .get(result._id_canal)
-    //       .send("Su enlace es el siguiente: " + element.enlace);
-    //   }
-    // );
+    canalFijado.findOne({ _id_sv: element.server }, function (err, result) {
+      client.channels.cache
+        .get(result._id_canal)
+        .send("Gente de " + element.rol + " tienen clases!.");
+      client.channels.cache
+        .get(result._id_canal)
+        .send("Su enlace es el siguiente: " + element.enlace);
+    });
   });
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
@@ -247,7 +227,7 @@ async function nuevohandler(msg) {
                                         hora: horas[0],
                                         minuto: horas[1],
                                         nombre: curso,
-                                        server: msg.server.id,
+                                        server: msg.guild.id,
                                         rol: roleid,
                                         enlace: enlace,
                                       });
@@ -295,8 +275,8 @@ async function inscrihandler(msg) {
     .then(async () => {
       try {
         const all = await Cursos.aggregate([
+          { $match: { server: msg.guild.id } },
           {
-            $match: { server: msg.server.id },
             $group: {
               _id: "$nombre",
               fieldN: {
