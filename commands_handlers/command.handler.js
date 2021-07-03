@@ -4,14 +4,22 @@ const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
 const Discord = require("discord.js");
 const { parse } = require("dotenv");
+/** Course reminder db schema
+ */
 const Cursos = mongoose.model("cursos", {
   dia: Number,
   hora: Number,
   minuto: Number,
   nombre: String,
-  canal: String,
+  server: String,
   rol: String,
   enlace: String,
+});
+/** Channel to send reminder messages
+ */
+const canalFijado = mongoose.model("canalfijado", {
+  id_sv: String,
+  id_canal: String,
 });
 /**
  * This is simply an array to parse
@@ -98,123 +106,142 @@ function samplehandler(msg) {
 }
 async function nuevohandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
-  msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
-    msg.channel
-      .awaitMessages(filter, {
-        max: 1,
-        time: 30000,
-        errors: ["time"],
-      })
-      .then((msg) => {
-        msg = msg.first();
-        let curso = msg.content;
-        msg.reply(
-          "¿Qué dias se dicta este curso?\n\npor favor escribelos de la siguiente forma:\nLunes,Martes,Miercoles..."
-        );
-        msg.channel
-          .awaitMessages(filter, {
-            max: 1,
-            time: 30000,
-            errors: ["time"],
-          })
-          .then((msg) => {
-            msg = msg.first();
-            let dias = msg.content;
-            msg.reply(
-              "¿A qué horas toca el curso? **(En el mismo orden que los días)**\n\nEn el siguiente formato:\n12:00,16:00,19:00..."
-            );
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      Cursos.exists({ name: "Rambo" }, function (err, result) {
+        if (err) {
+          msg.reply(
+            "Por favor, primero fija un canal para mandar los recordatorios." +
+              "/n" +
+              "¡Puedes hacerlo con el comando **>fijar canal!**"
+          );
+        } else {
+          msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
             msg.channel
               .awaitMessages(filter, {
                 max: 1,
                 time: 30000,
                 errors: ["time"],
               })
-              .then(async (msg) => {
+              .then((msg) => {
                 msg = msg.first();
-                let horarios = msg.content;
-                let diad = separacomas(dias);
-                let horariosd = separacomas(horarios);
-                if (diad.length > horariosd.length) {
-                  msg.reply("Pusiste más días que horarios");
-                }
-                if (diad.length < horariosd.length) {
-                  msg.reply("Pusiste más horarios que días");
-                }
-                if (diad.length == horariosd.length) {
-                  msg.reply("¿Cual es el enlace de la reunión?");
-                  msg.channel
-                    .awaitMessages(filter, {
-                      max: 1,
-                      time: 30000,
-                      errors: ["time"],
-                    })
-                    .then(async (msg) => {
-                      msg = msg.first();
-                      let enlace = msg.content;
-                      await mongoose
-                        .connect(mongoPath, {
-                          useNewUrlParser: true,
-                          useUnifiedTopology: true,
-                        })
-                        .then(async () => {
-                          try {
-                            var roleid;
-                            await msg.guild.roles
-                              .create({
-                                data: {
-                                  name: curso,
-                                },
-                                reason:
-                                  "Welp. Having reminders for this course I guess",
-                              })
-                              .then((role) => (roleid = role))
-                              .catch(console.error);
-                            for (var i = 0; i < diad.length; i++) {
-                              var horas = separapuntos(horariosd[i]);
-                              //I've tried so many schemas but i've settled using indexes
-                              // cuz I tried a Update||Create + Push on existing array
-                              // and I think that's the conflict I don't know but
-                              // I'm using other approach
-                              const nuevocurso = new Cursos({
-                                dia: days.indexOf(diad[i]),
-                                hora: horas[0],
-                                minuto: horas[1],
-                                nombre: curso,
-                                canal: msg.channel,
-                                rol: roleid,
-                                enlace: enlace,
-                              });
-                              nuevocurso.save();
-                              //.then(() => mongoose.connection.close());
-                            }
-                          } finally {
-                            //mongoose.connection.close();
-                          }
-                        });
-                      msg.reply("Curso ha sido creado correctamente");
-                    })
-                    .catch((collected) => {
-                      msg.channel.send("Se acabó el tiempo");
-                      console.log(collected);
-                    });
-                }
+                let curso = msg.content;
+                msg.reply(
+                  "¿Qué dias se dicta este curso?\n\npor favor escribelos de la siguiente forma:\nLunes,Martes,Miercoles..."
+                );
+                msg.channel
+                  .awaitMessages(filter, {
+                    max: 1,
+                    time: 30000,
+                    errors: ["time"],
+                  })
+                  .then((msg) => {
+                    msg = msg.first();
+                    let dias = msg.content;
+                    msg.reply(
+                      "¿A qué horas toca el curso? **(En el mismo orden que los días)**\n\nEn el siguiente formato:\n12:00,16:00,19:00..."
+                    );
+                    msg.channel
+                      .awaitMessages(filter, {
+                        max: 1,
+                        time: 30000,
+                        errors: ["time"],
+                      })
+                      .then(async (msg) => {
+                        msg = msg.first();
+                        let horarios = msg.content;
+                        let diad = separacomas(dias);
+                        let horariosd = separacomas(horarios);
+                        if (diad.length > horariosd.length) {
+                          msg.reply("Pusiste más días que horarios");
+                        }
+                        if (diad.length < horariosd.length) {
+                          msg.reply("Pusiste más horarios que días");
+                        }
+                        if (diad.length == horariosd.length) {
+                          msg.reply("¿Cual es el enlace de la reunión?");
+                          msg.channel
+                            .awaitMessages(filter, {
+                              max: 1,
+                              time: 30000,
+                              errors: ["time"],
+                            })
+                            .then(async (msg) => {
+                              msg = msg.first();
+                              let enlace = msg.content;
+                              await mongoose
+                                .connect(mongoPath, {
+                                  useNewUrlParser: true,
+                                  useUnifiedTopology: true,
+                                })
+                                .then(async () => {
+                                  try {
+                                    var roleid;
+                                    await msg.guild.roles
+                                      .create({
+                                        data: {
+                                          name: curso,
+                                        },
+                                        reason:
+                                          "Welp. Having reminders for this course I guess",
+                                      })
+                                      .then((role) => (roleid = role))
+                                      .catch(console.error);
+                                    for (var i = 0; i < diad.length; i++) {
+                                      var horas = separapuntos(horariosd[i]);
+                                      //I've tried so many schemas but i've settled using indexes
+                                      // cuz I tried a Update||Create + Push on existing array
+                                      // and I think that's the conflict I don't know but
+                                      // I'm using other approach
+                                      const nuevocurso = new Cursos({
+                                        dia: days.indexOf(diad[i]),
+                                        hora: horas[0],
+                                        minuto: horas[1],
+                                        nombre: curso,
+                                        canal: msg.channel,
+                                        rol: roleid,
+                                        enlace: enlace,
+                                      });
+                                      nuevocurso.save();
+                                      //.then(() => mongoose.connection.close());
+                                    }
+                                  } finally {
+                                    //mongoose.connection.close();
+                                  }
+                                });
+                              msg.reply("Curso ha sido creado correctamente");
+                            })
+                            .catch((collected) => {
+                              msg.channel.send("Se acabó el tiempo");
+                              console.log(collected);
+                            });
+                        }
+                      })
+                      .catch((collected) => {
+                        msg.channel.send("Se acabó el tiempo");
+                        console.log(collected);
+                      });
+                  })
+                  .catch((collected) => {
+                    msg.channel.send("Se acabó el tiempo");
+                    console.log(collected);
+                  });
               })
               .catch((collected) => {
                 msg.channel.send("Se acabó el tiempo");
                 console.log(collected);
               });
-          })
-          .catch((collected) => {
-            msg.channel.send("Se acabó el tiempo");
-            console.log(collected);
           });
-      })
-      .catch((collected) => {
-        msg.channel.send("Se acabó el tiempo");
-        console.log(collected);
+        }
       });
-  });
+    });
 }
+//NEED TO MODIFY THIS QUERY SO THAT EVERY COURSE THAT GETS ADDED
+//GETS A QUERY WITH SERVERID TO GET CHANNELID
 async function inscrihandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   await mongoose
