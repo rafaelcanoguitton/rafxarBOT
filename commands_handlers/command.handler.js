@@ -141,9 +141,9 @@ async function nuevohandler(msg) {
           msg.reply(
             "Por favor, primero fija un canal para mandar los recordatorios." +
               "\n" +
-              "¡Puedes hacerlo con el comando:" +
+              "Puedes hacerlo con el comando:" +
               "\n" +
-              "**>fijar canal!**"
+              "**>fijar canal**"
           );
         } else {
           msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
