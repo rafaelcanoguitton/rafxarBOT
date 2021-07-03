@@ -58,17 +58,19 @@ async function flujo_principal(client) {
         minuto: nd.getMinutes(),
       });
     });
-  curr_days_courses.forEach((element) => {
+  curr_days_courses.forEach(async (element) => {
     // console.log(element.nombre);
     // console.log(
     //   client.channels.cache.get(element.canal.substring(2).slice(0, -1))
     // );
-    client.channels.cache
-      .get(element.canal.substring(2).slice(0, -1))
-      .send("Gente de " + element.rol + " tienen clases!.");
-    client.channels.cache
-      .get(element.canal.substring(2).slice(0, -1))
-      .send("Su enlace es el siguiente: " + element.enlace);
+    canalFijado.findOne({ _id_sv: element.server }, function (err, result) {
+      client.channels.cache
+        .get(result._id_canal)
+        .send("Gente de " + element.rol + " tienen clases!.");
+      client.channels.cache
+        .get(result._id_canal)
+        .send("Su enlace es el siguiente: " + element.enlace);
+    });
   });
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
@@ -228,7 +230,7 @@ async function nuevohandler(msg) {
                                         hora: horas[0],
                                         minuto: horas[1],
                                         nombre: curso,
-                                        canal: msg.channel,
+                                        server: msg.channel.id,
                                         rol: roleid,
                                         enlace: enlace,
                                       });
@@ -266,8 +268,6 @@ async function nuevohandler(msg) {
       });
     });
 }
-//NEED TO MODIFY THIS QUERY SO THAT EVERY COURSE THAT GETS ADDED
-//GETS A QUERY WITH SERVERID TO GET CHANNELID
 async function inscrihandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   await mongoose
@@ -279,6 +279,7 @@ async function inscrihandler(msg) {
       try {
         const all = await Cursos.aggregate([
           {
+            $match: { server: msg.server.id },
             $group: {
               _id: "$nombre",
               fieldN: {
