@@ -1,18 +1,18 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const mongoose = require("mongoose");
-const handlers=require('./commands_handlers/command.handler');
-require('dotenv').config();
+const handlers = require("./commands_handlers/command.handler");
+require("dotenv").config();
 //console.log(process.env.discordKey);
 
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
     status: "idle",
-    activity:{
+    activity: {
       name: `on ${client.guilds.cache.size} servers! | >help | rafxarBot!`,
-      type: "PLAYING"
-    }
+      type: "PLAYING",
+    },
   });
   await mongoose
     .connect(handlers.mongoPath, {
@@ -66,6 +66,9 @@ client.on("message", async (msg) => {
     }
     if (msg.content === "inscribirme en un curso") {
       handlers.inscrihandler(msg);
+    }
+    if (msg.content === "fijar canal") {
+      handlers.fijar_canalHandler(msg);
     }
   }
 });

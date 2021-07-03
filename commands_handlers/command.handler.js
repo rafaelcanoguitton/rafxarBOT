@@ -104,6 +104,30 @@ function samplehandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   msg.reply("¿A qué curso te gustaría inscribirte?");
 }
+async function fijar_canalHandler(msg) {
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      canalFijado.updateOne(
+        { _id_sv: msg.guild.id },
+        { _id_canal: msg.channel.id },
+        { upsert: true },
+        function (err) {
+          if (err) {
+            msg.reply("Ocurrió un error en el servidor");
+          } else {
+            msg.reply(
+              "Okay, ¡Aquí enviaré los recordatorios de ahora en adelante! en " +
+                msg.channel.name
+            );
+          }
+        }
+      );
+    });
+}
 async function nuevohandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   await mongoose
@@ -116,8 +140,10 @@ async function nuevohandler(msg) {
         if (!result) {
           msg.reply(
             "Por favor, primero fija un canal para mandar los recordatorios." +
-              "/n" +
-              "¡Puedes hacerlo con el comando **>fijar canal!**"
+              "\n" +
+              "¡Puedes hacerlo con el comando:" +
+              "\n" +
+              "**>fijar canal!**"
           );
         } else {
           msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
@@ -454,5 +480,6 @@ module.exports = {
   quediahandler,
   dimecursoshandler,
   flujo_principal,
+  fijar_canalHandler,
   mongoPath,
 };
