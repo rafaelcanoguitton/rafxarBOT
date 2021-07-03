@@ -53,9 +53,9 @@ async function flujo_principal(client) {
     })
     .then(async () => {
       curr_days_courses = await Cursos.find({
-        dia: nd.getDay(),
-        hora: nd.getHours(),
-        minuto: nd.getMinutes(),
+        dia: 6,
+        hora: 1,
+        minuto: 8,
       });
     });
   curr_days_courses.forEach(async (element) => {
@@ -63,14 +63,31 @@ async function flujo_principal(client) {
     // console.log(
     //   client.channels.cache.get(element.canal.substring(2).slice(0, -1))
     // );
-    canalFijado.findOne({ _id_sv: element.server }, function (err, result) {
-      client.channels.cache
-        .get(result._id_canal)
-        .send("Gente de " + element.rol + " tienen clases!.");
-      client.channels.cache
-        .get(result._id_canal)
-        .send("Su enlace es el siguiente: " + element.enlace);
-    });
+    console.log(element.server);
+    await mongoose
+      .connect(mongoPath, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then(async () => {
+        canalFijado.find({ _id_sv: element.server.toString() }, function (err, result) {
+          console.log(result);
+        });
+        canalFijado.find({}, function (err, result) {
+          console.log(result);
+        });
+      });
+    // await canalFijado.findOne(
+    //   { _id_sv: element.server },
+    //   function (err, result) {
+    //     client.channels.cache
+    //       .get(result._id_canal)
+    //       .send("Gente de " + element.rol + " tienen clases!.");
+    //     client.channels.cache
+    //       .get(result._id_canal)
+    //       .send("Su enlace es el siguiente: " + element.enlace);
+    //   }
+    // );
   });
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
@@ -230,7 +247,7 @@ async function nuevohandler(msg) {
                                         hora: horas[0],
                                         minuto: horas[1],
                                         nombre: curso,
-                                        server: msg.channel.id,
+                                        server: msg.server.id,
                                         rol: roleid,
                                         enlace: enlace,
                                       });
