@@ -54,17 +54,11 @@ client.on("message", async (msg) => {
     if (msg.content == "llamalos") {
       handlers.llamaloshandler(msg);
     }
-    if (msg.content === "dime los cursos disponibles") {
-      handlers.dimecursoshandler(msg);
-    }
     ///////////////////////////////////////////////////////
-    if (msg.content === "cursos disponibles") {
-      handlers.samplehandler(msg);
-    }
     if (msg.content == "nuevo curso") {
       handlers.nuevohandler(msg);
     }
-    if (msg.content === "inscribirme en un curso") {
+    if (msg.content === "inscribirme") {
       handlers.inscrihandler(msg);
     }
     if (msg.content === "fijar canal") {

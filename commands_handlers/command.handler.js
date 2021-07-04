@@ -59,7 +59,6 @@ async function flujo_principal(client) {
       });
     });
   curr_days_courses.forEach(async (element) => {
-    console.log(element.server);
     canalFijado.findOne({ _id_sv: element.server }, function (err, result) {
       client.channels.cache
         .get(result._id_canal)
@@ -97,11 +96,6 @@ function separapuntos(a) {
   }
   intstring.push(parseInt(placeholderstring));
   return intstring;
-}
-//Actual handlers
-function samplehandler(msg) {
-  let filter = (m) => m.author.id === msg.author.id;
-  msg.reply("¿A qué curso te gustaría inscribirte?");
 }
 async function fijar_canalHandler(msg) {
   await mongoose
@@ -411,7 +405,7 @@ function comandos_handler(msg) {
         "\n**comandos**: Da una lista de comandos disponibles." +
         "\n**que dia es hoy**: Te dice que día es hoy..." +
         "\n**dime los cursos disponibles**: Da una lista de los cursos disponibles" +
-        "\n**inscribirme en un curso**: Te inscribe en un curso ya existente" +
+        "\n**inscribirme**: Te inscribe en un curso ya existente" +
         "\n**nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo"
     )
     .setFooter("Comandos rafxarBOT");
@@ -423,60 +417,13 @@ function quediahandler(msg) {
   temp += " mierda";
   msg.reply(temp);
 }
-function dimecursoshandler(msg) {
-  let filter = (m) => m.author.id === msg.author.id;
-  msg.channel.send(`Quieres crear un rol dices: \`SI\` / \`NO\``).then(() => {
-    msg.channel
-      .awaitMessages(filter, {
-        max: 1,
-        time: 30000,
-        errors: ["time"],
-      })
-      .then((msg) => {
-        msg = msg.first();
-        if (
-          msg.content.toUpperCase() == "SI" ||
-          msg.content.toUpperCase() == "S"
-        ) {
-          msg.channel.send(`Uff perra somos a ver di pinga`).then(() => {
-            msg.channel
-              .awaitMessages(filter, {
-                max: 1,
-                time: 30000,
-                errors: ["time"],
-              })
-              .then((msg) => {
-                msg = msg.first();
-                if (msg.content === "pinga") {
-                  msg.channel.send("jajaja gaaaa");
-                } else {
-                  msg.reply("cagon :(");
-                }
-              });
-          });
-        } else if (
-          msg.content.toUpperCase() == "NO" ||
-          msg.content.toUpperCase() == "N"
-        ) {
-          msg.channel.send(`Okay`);
-        } else {
-          msg.channel.send(`Respuesta inválida`);
-        }
-      })
-      .catch((collected) => {
-        msg.channel.send("Timeout");
-      });
-  });
-}
 module.exports = {
-  samplehandler,
   nuevohandler,
   inscrihandler,
   llamaloshandler,
   ayudahandler,
   comandos_handler,
   quediahandler,
-  dimecursoshandler,
   flujo_principal,
   fijar_canalHandler,
   mongoPath,
