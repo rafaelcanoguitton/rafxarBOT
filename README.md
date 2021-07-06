@@ -1,6 +1,6 @@
 # rafxarBot
 
-<img width="150" height="150" align="left" style="float: left; margin: 0 10px 0 0;" alt="rafxarBot" src="pirfil.png">rafxarBot is an open source Discord bot made with Javascript using [Discord.js](https://discord.js.org), [Mongoose](https://mongoosejs.com) and [Snoowrap](https://github.com/not-an-aardvark/snoowrap). Under constant development! Mostly made to learn javascript and also since I couldn't find discord bots that did what I wanted to do.
+<img width="150" height="150" align="left" style="float: left;" alt="rafxarBot" src="pirfil.png">rafxarBot is an open source Discord bot made with Javascript using [Discord.js](https://discord.js.org), [Mongoose](https://mongoosejs.com) and [Snoowrap](https://github.com/not-an-aardvark/snoowrap). Under constant development! Mostly made to learn javascript and also since I couldn't find discord bots that did what I wanted to do.
 
 The bot currently only works in Spanish, since it's my mother language. If the use case occurs then I would translate it.
 
