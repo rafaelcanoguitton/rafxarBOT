@@ -2,13 +2,9 @@
 
 rafxarBot is an open source Discord bot made with Javascript using [Discord.js](https://discord.js.org), [Mongoose](https://mongoosejs.com) and [Snoowrap](https://github.com/not-an-aardvark/snoowrap). Under constant development! Mostly made to learn javascript and also since I couldn't find discord bots that did what I wanted to do.
 
-
-
 The bot currently only works in Spanish, since it's my mother language. If the use case occurs then I would translate it.
 
 # Commands
-
------
 
 All commands work with the prefix "**>**"
 
@@ -28,7 +24,7 @@ All commands work with the prefix "**>**"
 
 # Contributions / Usage
 
------
+
 
 ## Contributions
 
