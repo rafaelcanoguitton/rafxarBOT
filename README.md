@@ -1,6 +1,6 @@
 # rafxarBot
 
-rafxarBot is an open source Discord bot made with Javascript using [Discord.js](https://discord.js.org), [Mongoose](https://mongoosejs.com) and [Snoowrap](https://github.com/not-an-aardvark/snoowrap). Under constant development! Mostly made to learn javascript and also since I couldn't find discord bots that did what I wanted to do.
+<img src="pirfil.png" title="" alt="" width="211">rafxarBot is an open source Discord bot made with Javascript using [Discord.js](https://discord.js.org), [Mongoose](https://mongoosejs.com) and [Snoowrap](https://github.com/not-an-aardvark/snoowrap). Under constant development! Mostly made to learn javascript and also since I couldn't find discord bots that did what I wanted to do.
 
 The bot currently only works in Spanish, since it's my mother language. If the use case occurs then I would translate it.
 
@@ -23,8 +23,6 @@ All commands work with the prefix "**>**"
 - **fijar canal** : Sets the channel where reminders will be sent.
 
 # Contributions / Usage
-
-
 
 ## Contributions
 
