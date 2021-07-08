@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const mongoPath = process.env.mongoPath;
 const Discord = require("discord.js");
 const { parse } = require("dotenv");
+const wrapper = require("./redditwrap");
 /** Course reminder db schema
  */
 const Cursos = mongoose.model("cursos", {
@@ -18,6 +19,14 @@ const Cursos = mongoose.model("cursos", {
 /** Channel to send reminder messages
  */
 const canalFijado = mongoose.model("canalfijado", {
+  _id_sv: String,
+  _id_canal: String,
+});
+const subreddits = mongoose.model("subreddits", {
+  _id_sub: String,
+  _id_sv: String,
+});
+const canalsr = mongoose.model("canalsr", {
   _id_sv: String,
   _id_canal: String,
 });
@@ -42,6 +51,7 @@ let days = [
  * @param {Discord.client} client discord client so that it can send message to role of specific channel
  */
 async function flujo_principal(client) {
+  /*"<@&"*/
   var curr_days_courses;
   var now = new Date(); //Getting system date
   utc = now.getTime() + now.getTimezoneOffset() * 60000; //Converting time to miliseconds
@@ -71,6 +81,37 @@ async function flujo_principal(client) {
   var time_for_timeout = 60000 - new Date().getSeconds() * 1000;
   setTimeout(flujo_principal.bind(null, client), time_for_timeout); //Passing Client here is really important, I literally spent a while debugging this
 } //I also learned that you need to use bind if not it doesn't work
+var miMapa = new Map();
+async function sub_queries(client) {
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      miMapa.forEach((value, key) => {
+        var res = wrapper.scrapeSubreddit(key);
+        if (res.title != value) {
+          var sub = await subreddits.findOne({ _id_sub: key });
+          var ch = await canalsr.findOne({ _id_sv: sub._id_sv });
+          client.channels.cache
+            .get(ch._id_canal)
+            .send("¡Hay un nuevo post en **" + key + "**! \n\n" + res.link);
+        }
+      });
+      var subsbd = await subreddits.find({});
+      if (subsbd.size != miMapa.size) {
+        subsbd.forEach((element)=>{
+          if(!miMapa.has(element._id_sub))
+          {
+            curr_last_post=wrapper.scrapeSubreddit(element._id_sub);
+            miMapa.set(element._id_sub,curr_last_post.title);
+          }
+        });
+      }
+    });
+    setTimeout(sub_queries.bind(null,client),300000);//Execute every 5 minutes
+}
 function separacomas(a) {
   var arraystring = [];
   var placeholderstring = "";
@@ -259,6 +300,7 @@ async function nuevohandler(msg) {
       });
     });
 }
+
 async function inscrihandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   await mongoose
@@ -377,12 +419,6 @@ async function inscrihandler(msg) {
       }
     });
 }
-function llamaloshandler(msg) {
-  let roleid = "715256258701033534";
-  msg.channel.send(
-    "llamando a todos los " + "<@&" + roleid + "> perras de mierda"
-  );
-}
 function ayudahandler(msg) {
   msg.channel.send(
     "¡Hola! Me llamo rafxarBOT! Soy un bot de propósito general. Por el momento puedo recordarte el horario de tus cursos y mandarte sus enlaces de google meet cuando te toquen :D." +
@@ -411,20 +447,24 @@ function comandos_handler(msg) {
     .setFooter("Comandos rafxarBOT");
   msg.channel.send(embed);
 }
+/**
+ * This function tells you what day is with a twist
+ * It's legacy code that my friends wanted to stay
+ */
 function quediahandler(msg) {
   let temp = "Oidia es ";
-  temp += days[new Date().getDay() - 1];
+  temp += days[new Date().getDay()];
   temp += " mierda";
   msg.reply(temp);
 }
 module.exports = {
-  nuevohandler,
-  inscrihandler,
-  llamaloshandler,
-  ayudahandler,
-  comandos_handler,
-  quediahandler,
-  flujo_principal,
-  fijar_canalHandler,
+  nuevohandler, //Handler for new course
+  inscrihandler, //Handler to get role for reminders of a course
+  ayudahandler, //Handler to get help information
+  comandos_handler, //Handler to get bot commands
+  quediahandler, //Legacy handler to get what day is today
+  flujo_principal, //Function that keeps query for reminders going
+  fijar_canalHandler, //Handler to tell which channel the bot will send reminders to
+  sub_queries,
   mongoPath,
 };

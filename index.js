@@ -25,6 +25,7 @@ client.on("ready", async () => {
       } finally {
         mongoose.connection.close();
         handlers.flujo_principal(client);
+        handlers.sub_queries(client);
       }
     });
 });
@@ -50,9 +51,6 @@ client.on("message", async (msg) => {
     }
     if (msg.content === "comandos") {
       handlers.comandos_handler(msg);
-    }
-    if (msg.content == "llamalos") {
-      handlers.llamaloshandler(msg);
     }
     ///////////////////////////////////////////////////////
     if (msg.content == "nuevo curso") {
