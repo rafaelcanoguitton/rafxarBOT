@@ -72,6 +72,12 @@ This project runs on **nodejs** and these are the following steps to run it:
   node index.js
   ```
 
+# Tasks/ To-do
+
+- Add handler function to add subreddit to the database.
+
+- Add handler to set channel where subreddit reminders will be sent.
+
 # License
 
 There isn't any... I don't even know how that works... yet.

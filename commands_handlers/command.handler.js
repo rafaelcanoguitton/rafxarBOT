@@ -89,7 +89,7 @@ async function sub_queries(client) {
       useUnifiedTopology: true,
     })
     .then(async () => {
-      miMapa.forEach((value, key) => {
+      miMapa.forEach(async(value, key) => {
         var res = wrapper.scrapeSubreddit(key);
         if (res.title != value) {
           var sub = await subreddits.findOne({ _id_sub: key });
