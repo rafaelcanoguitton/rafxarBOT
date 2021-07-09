@@ -89,9 +89,12 @@ async function sub_queries(client) {
       useUnifiedTopology: true,
     })
     .then(async () => {
+      //HERE I NEED TO ADD A LOOP SO THAT 
+      //IF MORE THAN 1 NEW POST WAS POSTED THEN
+      //POST EVERY POST TILL THAT
       miMapa.forEach(async (value, key) => {
-        var res = wrapper.scrapeSubreddit(key);
-        if (res.title != value) {
+        var res = await wrapper.scrapeSubreddit(key);
+        if (res[0].title != value) {
           var sub = await subreddits.findOne({ _id_sub: key });
           sub._id_sv.forEach(async (element) => {
             var ch = await canalsr.findOne({ _id_sv: element });
@@ -101,17 +104,19 @@ async function sub_queries(client) {
           });
         }
       });
-      var subsbd = await subreddits.find({});
-      if (subsbd.size != miMapa.size) {
-        subsbd.forEach((element) => {
+      const number = await subreddits.countDocuments();
+      if (number != miMapa.size) {
+        var subsbd = await subreddits.find({});
+        subsbd.forEach(async (element) => {
           if (!miMapa.has(element._id_sub)) {
-            curr_last_post = wrapper.scrapeSubreddit(element._id_sub);
-            miMapa.set(element._id_sub, curr_last_post.title);
+            curr_last_post = await wrapper.scrapeSubreddit(element._id_sub);
+            miMapa.set(element._id_sub, curr_last_post[0].title);
           }
         });
       }
+      console.log(miMapa);
     });
-  setTimeout(sub_queries.bind(null, client), 300000); //Execute every 5 minutes
+  setTimeout(sub_queries.bind(null, client), 300000); //Execute every 5 minutes 300000
 }
 function separacomas(a) {
   var arraystring = [];
