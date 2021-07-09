@@ -93,7 +93,7 @@ async function sub_queries(client) {
         var res = wrapper.scrapeSubreddit(key);
         if (res.title != value) {
           var sub = await subreddits.findOne({ _id_sub: key });
-          sub._id_sv.forEach((element) => {
+          sub._id_sv.forEach(async (element) => {
             var ch = await canalsr.findOne({ _id_sv: element });
             client.channels.cache
               .get(ch._id_canal)
