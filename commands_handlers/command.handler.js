@@ -24,7 +24,7 @@ const canalFijado = mongoose.model("canalfijado", {
 });
 const subreddits = mongoose.model("subreddits", {
   _id_sub: String,
-  _id_sv: String,
+  _id_sv: [String],
 });
 const canalsr = mongoose.model("canalsr", {
   _id_sv: String,
@@ -89,28 +89,29 @@ async function sub_queries(client) {
       useUnifiedTopology: true,
     })
     .then(async () => {
-      miMapa.forEach(async(value, key) => {
+      miMapa.forEach(async (value, key) => {
         var res = wrapper.scrapeSubreddit(key);
         if (res.title != value) {
           var sub = await subreddits.findOne({ _id_sub: key });
-          var ch = await canalsr.findOne({ _id_sv: sub._id_sv });
-          client.channels.cache
-            .get(ch._id_canal)
-            .send("¡Hay un nuevo post en **" + key + "**! \n\n" + res.link);
+          sub._id_sv.forEach((element) => {
+            var ch = await canalsr.findOne({ _id_sv: element });
+            client.channels.cache
+              .get(ch._id_canal)
+              .send("¡Hay un nuevo post en **" + key + "**! \n\n" + res.link);
+          });
         }
       });
       var subsbd = await subreddits.find({});
       if (subsbd.size != miMapa.size) {
-        subsbd.forEach((element)=>{
-          if(!miMapa.has(element._id_sub))
-          {
-            curr_last_post=wrapper.scrapeSubreddit(element._id_sub);
-            miMapa.set(element._id_sub,curr_last_post.title);
+        subsbd.forEach((element) => {
+          if (!miMapa.has(element._id_sub)) {
+            curr_last_post = wrapper.scrapeSubreddit(element._id_sub);
+            miMapa.set(element._id_sub, curr_last_post.title);
           }
         });
       }
     });
-    setTimeout(sub_queries.bind(null,client),300000);//Execute every 5 minutes
+  setTimeout(sub_queries.bind(null, client), 300000); //Execute every 5 minutes
 }
 function separacomas(a) {
   var arraystring = [];
@@ -457,6 +458,76 @@ function quediahandler(msg) {
   temp += " mierda";
   msg.reply(temp);
 }
+async function fijarsrhandler(msg) {
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      canalsr.updateOne(
+        { _id_sv: msg.guild.id },
+        { _id_canal: msg.channel.id },
+        { upsert: true },
+        function (err) {
+          if (err) {
+            msg.reply("Ocurrió un error en el servidor");
+          } else {
+            msg.reply(
+              "Okay, ¡Aquí enviaré los nuevos posts de ahora en adelante! en #" +
+                msg.channel.name
+            );
+          }
+        }
+      );
+    });
+}
+async function nuevosrhandler(msg) {
+  let filter = (m) => m.author.id === msg.author.id;
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      canalsr.exists({ _id_sv: msg.guild.id }, (err, result) => {
+        if (!result) {
+          msg.reply(
+            "Por favor, primero fija un canal para mandar los nuevos posts." +
+              "\n" +
+              "Puedes hacerlo con el comando:" +
+              "\n" +
+              "**>fijar sr**"
+          );
+        } else {
+          msg.reply("¿Qué subreddit te gustaría agregar?").then((msg) => {
+            msg.channel
+              .awaitMessages(filter, {
+                max: 1,
+                time: 30000,
+                errors: ["time"],
+              })
+              .then(async (msg) => {
+                msg = msg.first();
+                subreddits.updateOne(
+                  { _id_sub: msg.content },
+                  { $push: { _id_sv: msg.guild.id } },
+                  { upsert: true },
+                  function (err) {
+                    if (err) {
+                      msg.reply("Ocurrió un error en el servidor");
+                    } else {
+                      msg.reply("¡Subreddit agregado correctamente!");
+                    }
+                  }
+                );
+              });
+          });
+        }
+      });
+    });
+}
+function que_srhandler() {}
 module.exports = {
   nuevohandler, //Handler for new course
   inscrihandler, //Handler to get role for reminders of a course
@@ -466,5 +537,8 @@ module.exports = {
   flujo_principal, //Function that keeps query for reminders going
   fijar_canalHandler, //Handler to tell which channel the bot will send reminders to
   sub_queries,
+  fijarsrhandler,
+  nuevosrhandler,
+  que_srhandler,
   mongoPath,
 };

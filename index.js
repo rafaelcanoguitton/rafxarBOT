@@ -62,6 +62,12 @@ client.on("message", async (msg) => {
     if (msg.content === "fijar canal") {
       handlers.fijar_canalHandler(msg);
     }
+    if(msg.content==="fijar sr"){
+      handlers.fijarsrhandler(msg);
+    }
+    if(msg.content==="nuevo sr"){
+      handlers.nuevosrhandler(msg);
+    }
   }
 });
 //from process.env
