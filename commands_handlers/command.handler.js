@@ -116,7 +116,7 @@ async function sub_queries(client) {
       }
       console.log(miMapa);
     });
-  setTimeout(sub_queries.bind(null, client), 300000); //Execute every 5 minutes 300000
+  setTimeout(sub_queries.bind(null, client), 3000); //Execute every 5 minutes 300000
 }
 function separacomas(a) {
   var arraystring = [];
