@@ -74,9 +74,7 @@ This project runs on **nodejs** and these are the following steps to run it:
 
 # Tasks/ To-do
 
-- Add handler function to add subreddit to the database.
-
-- Add handler to set channel where subreddit reminders will be sent.
+- Add update and delete commands and commandhandlers for both courses reminders and new subreddit posts.
 
 # License
 
