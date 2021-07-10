@@ -60,6 +60,9 @@ client.on("message", async (msg) => {
     if(msg.content==="nuevo sr"){
       handlers.nuevosrhandler(msg);
     }
+    if(msg.content==="que sr"){
+      handlers.que_srhandler(msg);
+    }
   }
 });
 //from process.env

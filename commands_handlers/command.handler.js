@@ -538,7 +538,7 @@ async function nuevosrhandler(msg) {
       });
     });
 }
-function que_srhandler(msg) {
+async function que_srhandler(msg) {
   var server = msg.guild.id;
   await mongoose
     .connect(mongoPath, {
