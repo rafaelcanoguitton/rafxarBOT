@@ -89,7 +89,7 @@ async function sub_queries(client) {
       useUnifiedTopology: true,
     })
     .then(async () => {
-      //HERE I NEED TO ADD A LOOP SO THAT 
+      //HERE I NEED TO ADD A LOOP SO THAT
       //IF MORE THAN 1 NEW POST WAS POSTED THEN
       //POST EVERY POST TILL THAT
       miMapa.forEach(async (value, key) => {
@@ -100,9 +100,11 @@ async function sub_queries(client) {
             var ch = await canalsr.findOne({ _id_sv: element });
             client.channels.cache
               .get(ch._id_canal)
-              .send("¡Hay un nuevo post en **" + key + "**! \n\n" + res[0].link);
+              .send(
+                "¡Hay un nuevo post en **" + key + "**! \n\n" + res[0].link
+              );
           });
-          value=res[0].title;
+          value = res[0].title;
         }
       });
       const number = await subreddits.countDocuments();
@@ -527,13 +529,33 @@ async function nuevosrhandler(msg) {
                     }
                   }
                 );
+                miMapa[msg.content] = await wrapper.scrapeSubreddit(
+                  msg.content
+                );
               });
           });
         }
       });
     });
 }
-function que_srhandler() {}
+function que_srhandler(msg) {
+  var server = msg.guild.id;
+  await mongoose
+    .connect(mongoPath, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(async () => {
+      var men = "Se recibirá recordatorios para los siguientes subreddits:\n";
+      curr_sv_sr = await subreddits.find({ _id_sv: server });
+      curr_sv_sr.forEach((element) => {
+        men = men + "**r/" + element._id_sub + "**\n";
+      });
+      msg.reply(men);
+    });
+}
+function borr_cursohandler(msg) {}
+function borr_srhandler(msg) {}
 module.exports = {
   nuevohandler, //Handler for new course
   inscrihandler, //Handler to get role for reminders of a course
@@ -542,9 +564,9 @@ module.exports = {
   quediahandler, //Legacy handler to get what day is today
   flujo_principal, //Function that keeps query for reminders going
   fijar_canalHandler, //Handler to tell which channel the bot will send reminders to
-  sub_queries,
-  fijarsrhandler,
-  nuevosrhandler,
-  que_srhandler,
-  mongoPath,
+  sub_queries, //Function that queries if new post on subreddits every 5 min
+  fijarsrhandler, //Handler to tell which channel the bot will send new posts to
+  nuevosrhandler, //Handler to add a new subreddit to receive new posts from
+  que_srhandler, //Handler to list all subreddits the server receives new posts from
+  mongoPath, //Database path
 };

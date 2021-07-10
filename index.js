@@ -38,14 +38,6 @@ client.on("message", async (msg) => {
     if (msg.content === "que dia es hoy") {
       handlers.quediahandler(msg);
     }
-    // I guess for debugging
-    // List every server id and name
-    // the bot is in for debugging purposes
-    if (msg.content === "manoyara") {
-      client.guilds.cache.forEach((guild) => {
-        console.log(`${guild.name} | ${guild.id}`);
-      });
-    }
     if (msg.content === "help" || msg.content === "ayuda") {
       handlers.ayudahandler(msg);
     }
