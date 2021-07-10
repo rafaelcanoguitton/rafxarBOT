@@ -442,16 +442,24 @@ function comandos_handler(msg) {
     .setColor("#d92701")
     .setTitle("Comandos")
     .setDescription(
-      'A continuación los comandos que puedo realizar.\n Todos los comandos usan el prefijo ">"'
+      'A continuación los comandos que puedo realizar.\n Todos los comandos usan el prefijo **">"**'
     )
     .addField(
-      `__Comandos disponibles en ${msg.guild.name}__`,
-      "\n\n**help o ayuda**: Para obtener información acerca del bot." +
-        "\n**comandos**: Da una lista de comandos disponibles." +
-        "\n**que dia es hoy**: Te dice que día es hoy..." +
-        "\n**dime los cursos disponibles**: Da una lista de los cursos disponibles" +
-        "\n**inscribirme**: Te inscribe en un curso ya existente" +
-        "\n**nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo"
+      `__Comandos generales disponibles en ${msg.guild.name}__`,
+      "\n\n**>help | >ayuda**: Para obtener información acerca del bot." +
+        "\n**>comandos**: Da una lista de comandos disponibles."
+    )
+    .addField(
+      `__Comandos recordatorios de cursos disponibles en ${msg.guild.name}__`,
+      "\n\n**>inscribirme**: Te inscribe en un curso ya existente." +
+        "\n**>nuevo curso**: Sirve para crear un nuevo curso con su rol respectivo." +
+        "\n**>fijar canal**: Fija un canal para mandar los recordatorios de cursos."
+    )
+    .addField(
+      `__Comandos nuevos posts en subreddit disponibles en ${msg.guild.name}__`,
+      "\n\n**>que sr**: Lista los subreddits del servidor." +
+        "\n**>nuevo sr**: Agrega un nuevo subreddit para recibir recordatorios" +
+        "\n**>fijar sr**: Fija un canal para mandar los nuevos posts de los subreddits"
     )
     .setFooter("Comandos rafxarBOT");
   msg.channel.send(embed);
@@ -482,8 +490,9 @@ async function fijarsrhandler(msg) {
             msg.reply("Ocurrió un error en el servidor");
           } else {
             msg.reply(
-              "Okay, ¡Aquí enviaré los nuevos posts de ahora en adelante! en #" +
-                msg.channel.name
+              "Okay, ¡Aquí enviaré los nuevos posts de ahora en adelante! en <#" +
+                msg.channel.name +
+                ">"
             );
           }
         }
@@ -546,16 +555,63 @@ async function que_srhandler(msg) {
       useUnifiedTopology: true,
     })
     .then(async () => {
-      var men = "Se recibirá recordatorios para los siguientes subreddits:\n";
+      var men = "Se recibe nuevos posts para los siguientes subreddits:\n\n";
       curr_sv_sr = await subreddits.find({ _id_sv: server });
-      curr_sv_sr.forEach((element) => {
-        men = men + "**r/" + element._id_sub + "**\n";
-      });
-      msg.reply(men);
+      if (curr_sv_sr.length == 0) {
+        msg.reply(
+          "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
+            "**>nuevo sr**"
+        );
+      } else {
+        curr_sv_sr.forEach((element) => {
+          men = men + "**r/" + element._id_sub + "**\n";
+        });
+        msg.reply(men);
+      }
     });
 }
-function borr_cursohandler(msg) {}
-function borr_srhandler(msg) {}
+//Oh my fucking god this shit is annoying
+//Will implement when class starts again what the fuck
+function borr_cursohandler(msg) {
+  // await mongoose
+  //   .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
+  //   .then(async () => {});
+}
+function borr_srhandler(msg) {
+  let filter = (m) => m.author.id === msg.author.id;
+  await mongoose
+    .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(async () => {
+      var men = "Seleccione el subreddit que desea eliminar:\n\n";
+      allsr = await subreddits.find({ _id_sv: server });
+      if (allsr.length == 0) {
+        msg.reply(
+          "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
+            "**>nuevo sr**"
+        );
+      } else {
+        var i = 1;
+        allsr.forEach((element) => {
+          men = men + i.toString() + ": **r/" + element._id_sub + "**\n";
+        });
+        msg.channel
+          .awaitMessages(filter, {
+            max: 1,
+            time: 30000,
+            errors: ["time"],
+          })
+          .then(async (msg) => {
+            msg = msg.first();
+            subreddits.updateOne(
+              {
+                _id_sub: allsr[parseInt(msg.content) - 1]._id_sub,
+              },
+              { $pullAll: { _id_sv: msg.guild.id } }
+            );
+          });
+      }
+    });
+}
 module.exports = {
   nuevohandler, //Handler for new course
   inscrihandler, //Handler to get role for reminders of a course
@@ -568,5 +624,6 @@ module.exports = {
   fijarsrhandler, //Handler to tell which channel the bot will send new posts to
   nuevosrhandler, //Handler to add a new subreddit to receive new posts from
   que_srhandler, //Handler to list all subreddits the server receives new posts from
+  borr_srhandler, //Handler to delete a subreddit from the list of subreddits a server gets new posts from
   mongoPath, //Database path
 };

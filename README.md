@@ -74,7 +74,8 @@ This project runs on **nodejs** and these are the following steps to run it:
 
 # Tasks/ To-do
 
-- Add update and delete commands and commandhandlers for both courses reminders and new subreddit posts.
+- Add delete command for courses.
+- Validation and error handling for commands, I haven't really implemented those. At least I need to describe them oh god.
 
 # License
 

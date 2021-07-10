@@ -54,6 +54,7 @@ client.on("message", async (msg) => {
     if (msg.content === "fijar canal") {
       handlers.fijar_canalHandler(msg);
     }
+    ///////////////////////////////////////////////////////
     if(msg.content==="fijar sr"){
       handlers.fijarsrhandler(msg);
     }
@@ -62,6 +63,9 @@ client.on("message", async (msg) => {
     }
     if(msg.content==="que sr"){
       handlers.que_srhandler(msg);
+    }
+    if(msg.content==="borrar sr"{
+      handlers.borr_srhandler(msg);
     }
   }
 });
