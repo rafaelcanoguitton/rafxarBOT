@@ -100,8 +100,9 @@ async function sub_queries(client) {
             var ch = await canalsr.findOne({ _id_sv: element });
             client.channels.cache
               .get(ch._id_canal)
-              .send("¡Hay un nuevo post en **" + key + "**! \n\n" + res.link);
+              .send("¡Hay un nuevo post en **" + key + "**! \n\n" + res[0].link);
           });
+          value=res[0].title;
         }
       });
       const number = await subreddits.countDocuments();
