@@ -64,7 +64,7 @@ client.on("message", async (msg) => {
     if(msg.content==="que sr"){
       handlers.que_srhandler(msg);
     }
-    if(msg.content==="borrar sr"{
+    if(msg.content==="borrar sr"){
       handlers.borr_srhandler(msg);
     }
   }
