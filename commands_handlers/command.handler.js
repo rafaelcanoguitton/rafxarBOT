@@ -577,7 +577,7 @@ function borr_cursohandler(msg) {
   //   .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
   //   .then(async () => {});
 }
-function borr_srhandler(msg) {
+async function borr_srhandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   await mongoose
     .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
