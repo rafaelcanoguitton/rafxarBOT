@@ -101,7 +101,7 @@ async function sub_queries(client) {
             client.channels.cache
               .get(ch._id_canal)
               .send(
-                "¡Hay un nuevo post en **" + key + "**! \n\n" + res[0].url
+                "¡Hay un nuevo post en **r/" + key + "**! \n\n" + res[0].url
               );
           });
           value = res[0].title;
@@ -582,7 +582,6 @@ async function borr_srhandler(msg) {
   await mongoose
     .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(async () => {
-      var men = "Seleccione el subreddit que desea eliminar:\n\n";
       allsr = await subreddits.find({ _id_sv: msg.guild.id });
       if (allsr.length == 0) {
         msg.reply(
@@ -590,10 +589,13 @@ async function borr_srhandler(msg) {
             "**>nuevo sr**"
         );
       } else {
+        var men = "Seleccione el subreddit que desea eliminar:\n\n";
         var i = 1;
         allsr.forEach((element) => {
           men = men + i.toString() + ": **r/" + element._id_sub + "**\n";
+          i++;
         });
+        msg.reply(men);
         msg.channel
           .awaitMessages(filter, {
             max: 1,
@@ -602,11 +604,11 @@ async function borr_srhandler(msg) {
           })
           .then(async (msg) => {
             msg = msg.first();
-            subreddits.updateOne(
+            await subreddits.updateOne(
               {
                 _id_sub: allsr[parseInt(msg.content) - 1]._id_sub,
               },
-              { $pullAll: { _id_sv: msg.guild.id } }
+              { $pull: { _id_sv: msg.guild.id } }
             );
             miMapa.delete(allsr[parseInt(msg.content) - 1]._id_sub);
             msg.reply(`Se ha eliminado **${allsr[parseInt(msg.content) - 1]._id_sub}** de la lista.`);
