@@ -101,7 +101,7 @@ async function sub_queries(client) {
             client.channels.cache
               .get(ch._id_canal)
               .send(
-                "¡Hay un nuevo post en **" + key + "**! \n\n" + res[0].link
+                "¡Hay un nuevo post en **" + key + "**! \n\n" + res[0].url
               );
           });
           value = res[0].title;
