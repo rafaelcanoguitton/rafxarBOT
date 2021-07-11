@@ -538,9 +538,8 @@ async function nuevosrhandler(msg) {
                     }
                   }
                 );
-                miMapa[msg.content] = await wrapper.scrapeSubreddit(
-                  msg.content
-                );
+                var tempres= await wrapper.scrapeSubreddit(msg.content);
+                miMapa[msg.content] = tempres[0].title;
               });
           });
         }
