@@ -607,6 +607,8 @@ async function borr_srhandler(msg) {
               },
               { $pullAll: { _id_sv: msg.guild.id } }
             );
+            miMapa.delete(allsr[parseInt(msg.content) - 1]._id_sub);
+            msg.reply(`Se ha eliminado **${allsr[parseInt(msg.content) - 1]._id_sub}** de la lista.`);
           });
       }
     });
