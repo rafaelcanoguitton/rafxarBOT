@@ -459,7 +459,8 @@ function comandos_handler(msg) {
       `__Comandos nuevos posts en subreddit disponibles en ${msg.guild.name}__`,
       "\n\n**>que sr**: Lista los subreddits del servidor." +
         "\n**>nuevo sr**: Agrega un nuevo subreddit para recibir recordatorios" +
-        "\n**>fijar sr**: Fija un canal para mandar los nuevos posts de los subreddits"
+        "\n**>fijar sr**: Fija un canal para mandar los nuevos posts de los subreddits"+
+        "\n**>borrar sr**: Elimina un subreddit de la lista de subreddits."
     )
     .setFooter("Comandos rafxarBOT");
   msg.channel.send(embed);
@@ -582,7 +583,7 @@ async function borr_srhandler(msg) {
     .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(async () => {
       var men = "Seleccione el subreddit que desea eliminar:\n\n";
-      allsr = await subreddits.find({ _id_sv: server });
+      allsr = await subreddits.find({ _id_sv: msg.guild.id });
       if (allsr.length == 0) {
         msg.reply(
           "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
