@@ -104,7 +104,7 @@ async function sub_queries(client) {
                 "¡Hay un nuevo post en **r/" + key + "**! \n\n" + res[0].url
               );
           });
-          value = res[0].title;
+          miMapa.set(key, res[0].title);
         }
       });
       const number = await subreddits.countDocuments();
