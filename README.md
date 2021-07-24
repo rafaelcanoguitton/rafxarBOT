@@ -6,21 +6,29 @@ The bot currently only works in Spanish, since it's my mother language. If the u
 
 # Commands
 
-All commands work with the prefix "**>**"
+All commands work with the prefix "**>**" and there are two types of commands: **Course-related** and **Subreddits-related**.
 
-- **que dia es hoy** : Literally tells you what day is today. I'm keeping it as legacy code since my friends.
+### General Commands
 
-- **manoyara** : Prints on console every server and server id the bot is added.
+- **help | ayuda:** To get bot help information.
 
-- **help | ayuda** : Sends help instructions for the bot.
+- **comandos:** To get a list of available commands.
 
-- **comandos** : Sends the current commands the bot supports.
+### Course-Related
 
-- **nuevo curso** : Adds a new course for reminders.
+- **inscribirme:** To be able to enroll in a course (this means you get the role of said course so that you can receiv reminders).
+- **nuevo curso:** To create a course that reminders will be sent of.
+- **fijar canal:** To set the channel reminders will be sent to.
 
-- **inscribirme** : Gives a person a role for the respective chosen.
+### Subreddit-related
 
-- **fijar canal** : Sets the channel where reminders will be sent.
+- **que sr:** List all subreddits the server receives posts of .
+
+- **nuevo sr:** Adds a subreddit to the list the current server is sent new posts of.
+
+- **fijar sr:** To set the channel new posts from subreddits are sent to.
+
+- **borrar sr:** To delete a subreddit from the list the server currently receives new posts from.
 
 # Contributions / Usage
 
