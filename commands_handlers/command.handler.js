@@ -5,6 +5,9 @@ const mongoPath = process.env.mongoPath;
 const Discord = require("discord.js");
 const { parse } = require("dotenv");
 const wrapper = require("./redditwrap");
+const generador = require("./generador");
+const genCaratula = require("./generador");
+const fs = require("fs");
 /** Course reminder db schema
  */
 const Cursos = mongoose.model("cursos", {
@@ -101,7 +104,14 @@ async function sub_queries(client) {
             client.channels.cache
               .get(ch._id_canal)
               .send(
-                "¡Hay un nuevo post en **r/" + key + "**! \n\n" + res[0].url
+                "¡Hay un nuevo post en **r/" +
+                  key +
+                  "**! \n\n" +
+                  "**" +
+                  res[0].title +
+                  "**" +
+                  "\n" +
+                  res[0].url
               );
           });
           miMapa.set(key, res[0].title);
@@ -459,7 +469,7 @@ function comandos_handler(msg) {
       `__Comandos nuevos posts en subreddit disponibles en ${msg.guild.name}__`,
       "\n\n**>que sr**: Lista los subreddits del servidor." +
         "\n**>nuevo sr**: Agrega un nuevo subreddit para recibir recordatorios" +
-        "\n**>fijar sr**: Fija un canal para mandar los nuevos posts de los subreddits"+
+        "\n**>fijar sr**: Fija un canal para mandar los nuevos posts de los subreddits" +
         "\n**>borrar sr**: Elimina un subreddit de la lista de subreddits."
     )
     .setFooter("Comandos rafxarBOT");
@@ -539,7 +549,7 @@ async function nuevosrhandler(msg) {
                     }
                   }
                 );
-                var tempres= await wrapper.scrapeSubreddit(msg.content);
+                var tempres = await wrapper.scrapeSubreddit(msg.content);
                 miMapa[msg.content] = tempres[0].title;
               });
           });
@@ -611,9 +621,87 @@ async function borr_srhandler(msg) {
               { $pull: { _id_sv: msg.guild.id } }
             );
             miMapa.delete(allsr[parseInt(msg.content) - 1]._id_sub);
-            msg.reply(`Se ha eliminado **${allsr[parseInt(msg.content) - 1]._id_sub}** de la lista.`);
+            msg.reply(
+              `Se ha eliminado **${
+                allsr[parseInt(msg.content) - 1]._id_sub
+              }** de la lista.`
+            );
           });
       }
+    });
+}
+function caratulahandler(msg) {
+  let filter = (m) => m.author.id === msg.author.id;
+  msg.reply("¿Cual es el la carrera?");
+  msg.channel
+    .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
+    .then((msg) => {
+      msg = msg.first();
+      var carrera = msg.content;
+      msg.reply("¿Cual es el título del trabajo?");
+      msg.channel
+        .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
+        .then((msg) => {
+          msg = msg.first();
+          var titulo = msg.content;
+          msg.reply("¿Cual es el curso?");
+          msg.channel
+            .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
+            .then((msg) => {
+              msg = msg.first();
+              var curso = msg.content;
+              msg.reply("¿Qué semestre? Responda con un número del 1-10");
+              msg.channel
+                .awaitMessages(filter, {
+                  max: 1,
+                  time: 30000,
+                  errors: ["time"],
+                })
+                .then((msg) => {
+                  msg = msg.first();
+                  var semestre = parseInt(msg.content);
+                  if (semestre > 10 || semestre < 1) {
+                    msg.reply("No es un número válido");
+                  } else {
+                    msg.reply(
+                      "¿Quienes son los alumnos?\n No más de 6 personas ni menos de 1, nombres y apellidos separados por comas"
+                    );
+                    msg.channel
+                      .awaitMessages(filter, {
+                        max: 1,
+                        time: 30000,
+                        errors: ["time"],
+                      })
+                      .then((msg) => {
+                        msg = msg.first();
+                        var alumnos = msg.content.split(",");
+                        if (alumnos.length > 6 || alumnos.length < 1) {
+                          msg.reply("No es un número válido de alumnos.");
+                        } else {
+                          alumnos.forEach((element, index) => {
+                            alumnos[index] = element.trim();
+                          });
+                          generador.genCaratula(
+                            carrera,
+                            titulo,
+                            curso,
+                            semestre,
+                            alumnos,
+                            (archivo) => {
+                              if (archivo != null) {
+                                msg.channel.send({ files: ["./" + archivo] });
+                                fs.unlinkSync("./" + archivo);
+                              } else {
+                                msg.reply("No se pudo generar la caratula");
+                              }
+                            }
+                          );
+                        }
+                      });
+                  }
+                });
+            });
+        });
     });
 }
 module.exports = {
@@ -629,5 +717,6 @@ module.exports = {
   nuevosrhandler, //Handler to add a new subreddit to receive new posts from
   que_srhandler, //Handler to list all subreddits the server receives new posts from
   borr_srhandler, //Handler to delete a subreddit from the list of subreddits a server gets new posts from
+  caratulahandler, //Handler to get covers for univerity work
   mongoPath, //Database path
 };

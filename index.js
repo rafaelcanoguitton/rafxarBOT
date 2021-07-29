@@ -34,38 +34,41 @@ client.on("message", async (msg) => {
   //console.log(msg.content[0]);
   if (msg.content[0] === ">") {
     msg.content = msg.content.substring(1);
-    //Untouchable legacy
-    if (msg.content === "que dia es hoy") {
-      handlers.quediahandler(msg);
-    }
-    if (msg.content === "help" || msg.content === "ayuda") {
-      handlers.ayudahandler(msg);
-    }
-    if (msg.content === "comandos") {
-      handlers.comandos_handler(msg);
-    }
-    ///////////////////////////////////////////////////////
-    if (msg.content == "nuevo curso") {
-      handlers.nuevohandler(msg);
-    }
-    if (msg.content === "inscribirme") {
-      handlers.inscrihandler(msg);
-    }
-    if (msg.content === "fijar canal") {
-      handlers.fijar_canalHandler(msg);
-    }
-    ///////////////////////////////////////////////////////
-    if(msg.content==="fijar sr"){
-      handlers.fijarsrhandler(msg);
-    }
-    if(msg.content==="nuevo sr"){
-      handlers.nuevosrhandler(msg);
-    }
-    if(msg.content==="que sr"){
-      handlers.que_srhandler(msg);
-    }
-    if(msg.content==="borrar sr"){
-      handlers.borr_srhandler(msg);
+    switch (msg.content) {
+      //Untouchable legacy
+      case "que dia es hoy":
+        handlers.quediahandler(msg);
+        break;
+      case "help" || "ayuda":
+        handlers.ayudahandler(msg);
+        break;
+      case "comandos":
+        handlers.comandos_handler(msg);
+        break;
+      case "nuevo curso":
+        handlers.nuevohandler(msg);
+        break;
+      case "inscribirme":
+        handlers.inscrihandler(msg);
+        break;
+      case "fijar canal":
+        handlers.fijar_canalHandler(msg);
+        break;
+      case "fijar sr":
+        handlers.fijarsrhandler(msg);
+        break;
+      case "nuevo sr":
+        handlers.nuevosrhandler(msg);
+        break;
+      case "que sr":
+        handlers.que_srhandler(msg);
+        break;
+      case "borrar sr":
+        handlers.borr_srhandler(msg);
+        break;
+      case "caratula":
+        handlers.caratulahandler(msg);
+        break;
     }
   }
 });
