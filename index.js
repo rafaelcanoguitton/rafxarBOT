@@ -3,7 +3,6 @@ const client = new Discord.Client();
 const mongoose = require("mongoose");
 const handlers = require("./commands_handlers/command.handler");
 require("dotenv").config();
-//console.log(process.env.discordKey);
 
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -14,20 +13,15 @@ client.on("ready", async () => {
       type: "PLAYING",
     },
   });
-  await mongoose
+  const mongo=await mongoose
     .connect(handlers.mongoPath, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
-    .then((mongoose) => {
-      try {
-        console.log("Conexión correcta  a la base de datos");
-      } finally {
-        mongoose.connection.close();
-        handlers.flujo_principal(client);
-        handlers.sub_queries(client);
-      }
-    });
+  console.log("Conexión correcta  a la base de datos");
+  mongo.connection.close();
+  handlers.flujo_principal(client);
+  handlers.sub_queries(client);
 });
 //List of all commands available
 client.on("message", async (msg) => {

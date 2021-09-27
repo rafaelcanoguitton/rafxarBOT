@@ -59,18 +59,15 @@ async function flujo_principal(client) {
   var now = new Date(); //Getting system date
   utc = now.getTime() + now.getTimezoneOffset() * 60000; //Converting time to miliseconds
   nd = new Date(utc + 3600000 * "-5"); //Using Peru offset, could change depending if I deploy on multiple servers
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      curr_days_courses = await Cursos.find({
-        dia: nd.getDay(),
-        hora: nd.getHours(),
-        minuto: nd.getMinutes(),
-      });
-    });
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  curr_days_courses = await Cursos.find({
+    dia: nd.getDay(),
+    hora: nd.getHours(),
+    minuto: nd.getMinutes(),
+  });
   curr_days_courses.forEach(async (element) => {
     canalFijado.findOne({ _id_sv: element.server }, function (err, result) {
       client.channels.cache
@@ -86,49 +83,45 @@ async function flujo_principal(client) {
 } //I also learned that you need to use bind if not it doesn't work
 var miMapa = new Map();
 async function sub_queries(client) {
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      //HERE I NEED TO ADD A LOOP SO THAT
-      //IF MORE THAN 1 NEW POST WAS POSTED THEN
-      //POST EVERY POST TILL THAT
-      miMapa.forEach(async (value, key) => {
-        var res = await wrapper.scrapeSubreddit(key);
-        if (res[0].title != value) {
-          var sub = await subreddits.findOne({ _id_sub: key });
-          sub._id_sv.forEach(async (element) => {
-            var ch = await canalsr.findOne({ _id_sv: element });
-            client.channels.cache
-              .get(ch._id_canal)
-              .send(
-                "¡Hay un nuevo post en **r/" +
-                  key +
-                  "**! \n\n" +
-                  "**" +
-                  res[0].title +
-                  "**" +
-                  "\n" +
-                  res[0].url
-              );
-          });
-          miMapa.set(key, res[0].title);
-        }
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  //HERE I NEED TO ADD A LOOP SO THAT
+  //IF MORE THAN 1 NEW POST WAS POSTED THEN
+  //POST EVERY POST TILL THAT
+  miMapa.forEach(async (value, key) => {
+    var res = await wrapper.scrapeSubreddit(key);
+    if (res[0].title != value) {
+      var sub = await subreddits.findOne({ _id_sub: key });
+      sub._id_sv.forEach(async (element) => {
+        var ch = await canalsr.findOne({ _id_sv: element });
+        client.channels.cache
+          .get(ch._id_canal)
+          .send(
+            "¡Hay un nuevo post en **r/" +
+              key +
+              "**! \n\n" +
+              "**" +
+              res[0].title +
+              "**" +
+              "\n" +
+              res[0].url
+          );
       });
-      const number = await subreddits.countDocuments();
-      if (number != miMapa.size) {
-        var subsbd = await subreddits.find({});
-        subsbd.forEach(async (element) => {
-          if (!miMapa.has(element._id_sub)) {
-            curr_last_post = await wrapper.scrapeSubreddit(element._id_sub);
-            miMapa.set(element._id_sub, curr_last_post[0].title);
-          }
-        });
+      miMapa.set(key, res[0].title);
+    }
+  });
+  const number = await subreddits.countDocuments();
+  if (number != miMapa.size) {
+    var subsbd = await subreddits.find({});
+    subsbd.forEach(async (element) => {
+      if (!miMapa.has(element._id_sub)) {
+        curr_last_post = await wrapper.scrapeSubreddit(element._id_sub);
+        miMapa.set(element._id_sub, curr_last_post[0].title);
       }
-      console.log(miMapa);
     });
+  }
   setTimeout(sub_queries.bind(null, client), 300000); //Execute every 5 minutes 300000
 }
 function separacomas(a) {
@@ -158,285 +151,228 @@ function separapuntos(a) {
   return intstring;
 }
 async function fijar_canalHandler(msg) {
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      canalFijado.updateOne(
-        { _id_sv: msg.guild.id },
-        { _id_canal: msg.channel.id },
-        { upsert: true },
-        function (err) {
-          if (err) {
-            msg.reply("Ocurrió un error en el servidor");
-          } else {
-            msg.reply(
-              "Okay, ¡Aquí enviaré los recordatorios de ahora en adelante! en " +
-                msg.channel.name
-            );
-          }
-        }
-      );
-    });
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  canalFijado.updateOne(
+    { _id_sv: msg.guild.id },
+    { _id_canal: msg.channel.id },
+    { upsert: true },
+    function (err) {
+      if (err) {
+        msg.reply("Ocurrió un error en el servidor");
+      } else {
+        msg.reply(
+          "Okay, ¡Aquí enviaré los recordatorios de ahora en adelante! en " +
+            msg.channel.name
+        );
+      }
+    }
+  );
 }
 async function nuevohandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      canalFijado.exists({ _id_sv: msg.guild.id }, function (err, result) {
-        if (!result) {
-          msg.reply(
-            "Por favor, primero fija un canal para mandar los recordatorios." +
-              "\n" +
-              "Puedes hacerlo con el comando:" +
-              "\n" +
-              "**>fijar canal**"
-          );
-        } else {
-          msg.reply("¿Cómo se llamará el nuevo curso?").then(() => {
-            msg.channel
-              .awaitMessages(filter, {
-                max: 1,
-                time: 30000,
-                errors: ["time"],
-              })
-              .then((msg) => {
-                msg = msg.first();
-                let curso = msg.content;
-                msg.reply(
-                  "¿Qué dias se dicta este curso?\n\npor favor escribelos de la siguiente forma:\nLunes,Martes,Miercoles..."
-                );
-                msg.channel
-                  .awaitMessages(filter, {
-                    max: 1,
-                    time: 30000,
-                    errors: ["time"],
-                  })
-                  .then((msg) => {
-                    msg = msg.first();
-                    let dias = msg.content;
-                    msg.reply(
-                      "¿A qué horas toca el curso? **(En el mismo orden que los días)**\n\nEn el siguiente formato:\n12:00,16:00,19:00..."
-                    );
-                    msg.channel
-                      .awaitMessages(filter, {
-                        max: 1,
-                        time: 30000,
-                        errors: ["time"],
-                      })
-                      .then(async (msg) => {
-                        msg = msg.first();
-                        let horarios = msg.content;
-                        let diad = separacomas(dias);
-                        let horariosd = separacomas(horarios);
-                        if (diad.length > horariosd.length) {
-                          msg.reply("Pusiste más días que horarios");
-                        }
-                        if (diad.length < horariosd.length) {
-                          msg.reply("Pusiste más horarios que días");
-                        }
-                        if (diad.length == horariosd.length) {
-                          msg.reply("¿Cual es el enlace de la reunión?");
-                          msg.channel
-                            .awaitMessages(filter, {
-                              max: 1,
-                              time: 30000,
-                              errors: ["time"],
-                            })
-                            .then(async (msg) => {
-                              msg = msg.first();
-                              let enlace = msg.content;
-                              await mongoose
-                                .connect(mongoPath, {
-                                  useNewUrlParser: true,
-                                  useUnifiedTopology: true,
-                                })
-                                .then(async () => {
-                                  try {
-                                    var roleid;
-                                    await msg.guild.roles
-                                      .create({
-                                        data: {
-                                          name: curso,
-                                        },
-                                        reason:
-                                          "Welp. Having reminders for this course I guess",
-                                      })
-                                      .then((role) => (roleid = role))
-                                      .catch(console.error);
-                                    for (var i = 0; i < diad.length; i++) {
-                                      var horas = separapuntos(horariosd[i]);
-                                      //I've tried so many schemas but i've settled using indexes
-                                      // cuz I tried a Update||Create + Push on existing array
-                                      // and I think that's the conflict I don't know but
-                                      // I'm using other approach
-                                      const nuevocurso = new Cursos({
-                                        dia: days.indexOf(diad[i]),
-                                        hora: horas[0],
-                                        minuto: horas[1],
-                                        nombre: curso,
-                                        server: msg.guild.id,
-                                        rol: roleid,
-                                        enlace: enlace,
-                                      });
-                                      nuevocurso.save();
-                                      //.then(() => mongoose.connection.close());
-                                    }
-                                  } finally {
-                                    //mongoose.connection.close();
-                                  }
-                                });
-                              msg.reply("Curso ha sido creado correctamente");
-                            })
-                            .catch((collected) => {
-                              msg.channel.send("Se acabó el tiempo");
-                              console.log(collected);
-                            });
-                        }
-                      })
-                      .catch((collected) => {
-                        msg.channel.send("Se acabó el tiempo");
-                        console.log(collected);
-                      });
-                  })
-                  .catch((collected) => {
-                    msg.channel.send("Se acabó el tiempo");
-                    console.log(collected);
-                  });
-              })
-              .catch((collected) => {
-                msg.channel.send("Se acabó el tiempo");
-                console.log(collected);
-              });
-          });
-        }
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  const channelExists = await canalFijado.exists({ _id_sv: msg.guild.id });
+  if (!channelExists) {
+    msg.reply(
+      "Por favor, primero fija un canal para mandar los recordatorios." +
+        "\n" +
+        "Puedes hacerlo con el comando:" +
+        "\n" +
+        "**>fijar canal**"
+    );
+  } else {
+    try {
+      msg.reply("¿Cómo se llamará el nuevo curso?");
+      const reply = await msg.channel.awaitMessages(filter, {
+        max: 1,
+        time: 30000,
+        errors: ["time"],
       });
-    });
+      msg = reply.first();
+      let curso = msg.content;
+      msg.reply(
+        "¿Qué dias se dicta este curso?\n\npor favor escribelos de la siguiente forma:\nLunes,Martes,Miercoles..."
+      );
+      const secondReply = await msg.channel.awaitMessages(filter, {
+        max: 1,
+        time: 30000,
+        errors: ["time"],
+      });
+      msg = secondReply.first();
+      let dias = msg.content;
+      msg.reply(
+        "¿A qué horas toca el curso? **(En el mismo orden que los días)**\n\nEn el siguiente formato:\n12:00,16:00,19:00..."
+      );
+      const thirdReply = await msg.channel.awaitMessages(filter, {
+        max: 1,
+        time: 30000,
+        errors: ["time"],
+      });
+      msg = thirdReply.first();
+      let horarios = msg.content;
+      let diad = separacomas(dias);
+      let horariosd = separacomas(horarios);
+      if (diad.length > horariosd.length) {
+        msg.reply("Pusiste más días que horarios");
+      }
+      if (diad.length < horariosd.length) {
+        msg.reply("Pusiste más horarios que días");
+      }
+      if (diad.length == horariosd.length) {
+        msg.reply("¿Cual es el enlace de la reunión?");
+        const fourthReply = await msg.channel.awaitMessages(filter, {
+          max: 1,
+          time: 30000,
+          errors: ["time"],
+        });
+        msg = fourthReply.first();
+        let enlace = msg.content;
+        await mongoose.connect(mongoPath, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        });
+        const roleid = await msg.guild.roles.create({
+          data: {
+            name: curso,
+          },
+          reason: "Welp. Having reminders for this course I guess",
+        });
+        for (var i = 0; i < diad.length; i++) {
+          var horas = separapuntos(horariosd[i]);
+          //I've tried so many schemas but i've settled using indexes
+          // cuz I tried a Update||Create + Push on existing array
+          // and I think that's the conflict I don't know but
+          // I'm using other approach
+          const nuevocurso = new Cursos({
+            dia: days.indexOf(diad[i]),
+            hora: horas[0],
+            minuto: horas[1],
+            nombre: curso,
+            server: msg.guild.id,
+            rol: roleid,
+            enlace: enlace,
+          });
+          nuevocurso.save();
+          //.then(() => mongoose.connection.close());
+        }
+        msg.reply("Curso ha sido creado correctamente");
+      }
+    } catch (e) {
+      msg.reply("Ocurrió un error");
+    } finally {
+      mongoose.connection.close();
+    }
+  }
 }
 
 async function inscrihandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      try {
-        const all = await Cursos.aggregate([
-          { $match: { server: msg.guild.id } },
-          {
-            $group: {
-              _id: "$nombre",
-              fieldN: {
-                $push: {
-                  dias: "$dia",
-                  horas: "$hora",
-                  minutos: "$minuto",
-                  rol: "$rol",
-                },
-              },
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  try {
+    const all = await Cursos.aggregate([
+      { $match: { server: msg.guild.id } },
+      {
+        $group: {
+          _id: "$nombre",
+          fieldN: {
+            $push: {
+              dias: "$dia",
+              horas: "$hora",
+              minutos: "$minuto",
+              rol: "$rol",
             },
           },
-        ]);
-        if (all.length === 0) {
-          msg.channel.send("Aún no existe ningún curso.");
+        },
+      },
+    ]);
+    if (all.length === 0) {
+      msg.channel.send("Aún no existe ningún curso.");
+    } else {
+      var mensaje = "";
+      var count = 1;
+      all.forEach((element) => {
+        var deis = "";
+        var hors = "";
+        element.fieldN.forEach((elementa) => {
+          deis += days[elementa.dias];
+          deis += " , ";
+          if (elementa.horas == 0) {
+            hors += "00:";
+          } else {
+            hors += elementa.horas.toString();
+            hors += ":";
+          }
+          if (elementa.minutos == 0) {
+            hors += "00";
+            hors += " , ";
+          } else {
+            hors += elementa.minutos.toString();
+            hors += " , ";
+          }
+        });
+        deis = deis.slice(0, -2);
+        hors = hors.slice(0, -2);
+        mensaje +=
+          "**" +
+          count.toString() +
+          "** : " +
+          "El curso: **" +
+          element._id +
+          "\t" +
+          "\t" +
+          "En los días: **" +
+          deis +
+          "\t" +
+          "\t" +
+          "A estas horas: **" +
+          hors +
+          "**\n";
+        count++;
+      });
+      msg.channel.send(mensaje).then(() => {
+        msg.reply("Indique el número de curso al que le gustaría matricularse");
+        const reply = await msg.channel.awaitMessages(filter, {
+          max: 1,
+          time: 30000,
+          errors: ["time"],
+        });
+        msg = reply.first();
+        if (parseInt(msg) <= all.length + 1) {
+          // msg.member.addRole(all[parseInt(msg) - 1].rol);
+          console.log(
+            all[parseInt(msg) - 1].fieldN[0].rol.substring(3).slice(0, -1)
+          );
+          let role = msg.guild.roles.cache.find(
+            (r) =>
+              r.id ===
+              all[parseInt(msg) - 1].fieldN[0].rol.substring(3).slice(0, -1)
+          );
+          if (!msg.member.roles.cache.some((rol) => rol.id === role.id)) {
+            msg.member.roles
+              .add(role.id)
+              .then(
+                console.log(`Succesfuly added role to member ${msg.author.tag}`)
+              )
+              .catch(console.error);
+          }
+          msg.reply("¡Has sido matriculado exitosamente!");
         } else {
-          var mensaje = "";
-          var count = 1;
-          all.forEach((element) => {
-            var deis = "";
-            var hors = "";
-            element.fieldN.forEach((elementa) => {
-              deis += days[elementa.dias];
-              deis += " , ";
-              if (elementa.horas == 0) {
-                hors += "00:";
-              } else {
-                hors += elementa.horas.toString();
-                hors += ":";
-              }
-              if (elementa.minutos == 0) {
-                hors += "00";
-                hors += " , ";
-              } else {
-                hors += elementa.minutos.toString();
-                hors += " , ";
-              }
-            });
-            deis = deis.slice(0, -2);
-            hors = hors.slice(0, -2);
-            mensaje +=
-              "**" +
-              count.toString() +
-              "** : " +
-              "El curso: **" +
-              element._id +
-              "\t" +
-              "\t" +
-              "En los días: **" +
-              deis +
-              "\t" +
-              "\t" +
-              "A estas horas: **" +
-              hors +
-              "**\n";
-            count++;
-          });
-          msg.channel.send(mensaje).then(() => {
-            msg.reply(
-              "Indique el número de curso al que le gustaría matricularse"
-            );
-            msg.channel
-              .awaitMessages(filter, {
-                max: 1,
-                time: 30000,
-                errors: ["time"],
-              })
-              .then(async (msg) => {
-                msg = msg.first();
-                if (parseInt(msg) <= all.length + 1) {
-                  // msg.member.addRole(all[parseInt(msg) - 1].rol);
-                  console.log(
-                    all[parseInt(msg) - 1].fieldN[0].rol
-                      .substring(3)
-                      .slice(0, -1)
-                  );
-                  let role = msg.guild.roles.cache.find(
-                    (r) =>
-                      r.id ===
-                      all[parseInt(msg) - 1].fieldN[0].rol
-                        .substring(3)
-                        .slice(0, -1)
-                  );
-                  if (
-                    !msg.member.roles.cache.some((rol) => rol.id === role.id)
-                  ) {
-                    msg.member.roles
-                      .add(role.id)
-                      .then(
-                        console.log(
-                          `Succesfuly added role to member ${msg.author.tag}`
-                        )
-                      )
-                      .catch(console.error);
-                  }
-                  msg.reply("¡Has sido matriculado exitosamente!");
-                } else {
-                  msg.reply("Fuera del rango.");
-                }
-              });
-          });
+          msg.reply("Fuera del rango.");
         }
-      } finally {
-      }
-    });
+      });
+    }
+  } finally {
+    mongoose.connection.close();
+  }
 }
 function ayudahandler(msg) {
   msg.channel.send(
@@ -486,99 +422,86 @@ function quediahandler(msg) {
   msg.reply(temp);
 }
 async function fijarsrhandler(msg) {
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      canalsr.updateOne(
-        { _id_sv: msg.guild.id },
-        { _id_canal: msg.channel.id },
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  canalsr.updateOne(
+    { _id_sv: msg.guild.id },
+    { _id_canal: msg.channel.id },
+    { upsert: true },
+    function (err) {
+      if (err) {
+        msg.reply("Ocurrió un error en el servidor");
+      } else {
+        msg.reply(
+          "Okay, ¡Aquí enviaré los nuevos posts de ahora en adelante! en <#" +
+            msg.channel.name +
+            ">"
+        );
+      }
+    }
+  );
+}
+async function nuevosrhandler(msg) {
+  let filter = (m) => m.author.id === msg.author.id;
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  canalsr.exists({ _id_sv: msg.guild.id }, (err, result) => {
+    if (!result) {
+      msg.reply(
+        "Por favor, primero fija un canal para mandar los nuevos posts." +
+          "\n" +
+          "Puedes hacerlo con el comando:" +
+          "\n" +
+          "**>fijar sr**"
+      );
+    } else {
+      msg.reply("¿Qué subreddit te gustaría agregar?");
+      const reply = await msg.channel.awaitMessages(filter, {
+        max: 1,
+        time: 30000,
+        errors: ["time"],
+      });
+      msg = reply.first();
+      subreddits.updateOne(
+        { _id_sub: msg.content },
+        { $push: { _id_sv: msg.guild.id } },
         { upsert: true },
         function (err) {
           if (err) {
             msg.reply("Ocurrió un error en el servidor");
           } else {
-            msg.reply(
-              "Okay, ¡Aquí enviaré los nuevos posts de ahora en adelante! en <#" +
-                msg.channel.name +
-                ">"
-            );
+            msg.reply("¡Subreddit agregado correctamente!");
           }
         }
       );
-    });
-}
-async function nuevosrhandler(msg) {
-  let filter = (m) => m.author.id === msg.author.id;
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      canalsr.exists({ _id_sv: msg.guild.id }, (err, result) => {
-        if (!result) {
-          msg.reply(
-            "Por favor, primero fija un canal para mandar los nuevos posts." +
-              "\n" +
-              "Puedes hacerlo con el comando:" +
-              "\n" +
-              "**>fijar sr**"
-          );
-        } else {
-          msg.reply("¿Qué subreddit te gustaría agregar?").then((msg) => {
-            msg.channel
-              .awaitMessages(filter, {
-                max: 1,
-                time: 30000,
-                errors: ["time"],
-              })
-              .then(async (msg) => {
-                msg = msg.first();
-                subreddits.updateOne(
-                  { _id_sub: msg.content },
-                  { $push: { _id_sv: msg.guild.id } },
-                  { upsert: true },
-                  function (err) {
-                    if (err) {
-                      msg.reply("Ocurrió un error en el servidor");
-                    } else {
-                      msg.reply("¡Subreddit agregado correctamente!");
-                    }
-                  }
-                );
-                var tempres = await wrapper.scrapeSubreddit(msg.content);
-                miMapa[msg.content] = tempres[0].title;
-              });
-          });
-        }
-      });
-    });
+      var tempres = await wrapper.scrapeSubreddit(msg.content);
+      miMapa[msg.content] = tempres[0].title;
+    }
+  });
 }
 async function que_srhandler(msg) {
   var server = msg.guild.id;
-  await mongoose
-    .connect(mongoPath, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(async () => {
-      var men = "Se recibe nuevos posts para los siguientes subreddits:\n\n";
-      curr_sv_sr = await subreddits.find({ _id_sv: server });
-      if (curr_sv_sr.length == 0) {
-        msg.reply(
-          "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
-            "**>nuevo sr**"
-        );
-      } else {
-        curr_sv_sr.forEach((element) => {
-          men = men + "**r/" + element._id_sub + "**\n";
-        });
-        msg.reply(men);
-      }
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  var men = "Se recibe nuevos posts para los siguientes subreddits:\n\n";
+  curr_sv_sr = await subreddits.find({ _id_sv: server });
+  if (curr_sv_sr.length == 0) {
+    msg.reply(
+      "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
+        "**>nuevo sr**"
+    );
+  } else {
+    curr_sv_sr.forEach((element) => {
+      men = men + "**r/" + element._id_sub + "**\n";
     });
+    msg.reply(men);
+  }
 }
 //Oh my fucking god this shit is annoying
 //Will implement when class starts again what the fuck
@@ -589,120 +512,114 @@ function borr_cursohandler(msg) {
 }
 async function borr_srhandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
-  await mongoose
-    .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(async () => {
-      allsr = await subreddits.find({ _id_sv: msg.guild.id });
-      if (allsr.length == 0) {
-        msg.reply(
-          "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
-            "**>nuevo sr**"
-        );
-      } else {
-        var men = "Seleccione el subreddit que desea eliminar:\n\n";
-        var i = 1;
-        allsr.forEach((element) => {
-          men = men + i.toString() + ": **r/" + element._id_sub + "**\n";
-          i++;
-        });
-        msg.reply(men);
-        msg.channel
-          .awaitMessages(filter, {
-            max: 1,
-            time: 30000,
-            errors: ["time"],
-          })
-          .then(async (msg) => {
-            msg = msg.first();
-            await subreddits.updateOne(
-              {
-                _id_sub: allsr[parseInt(msg.content) - 1]._id_sub,
-              },
-              { $pull: { _id_sv: msg.guild.id } }
-            );
-            miMapa.delete(allsr[parseInt(msg.content) - 1]._id_sub);
-            msg.reply(
-              `Se ha eliminado **${
-                allsr[parseInt(msg.content) - 1]._id_sub
-              }** de la lista.`
-            );
-          });
-      }
+  await mongoose.connect(mongoPath, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  allsr = await subreddits.find({ _id_sv: msg.guild.id });
+  if (allsr.length == 0) {
+    msg.reply(
+      "Aún no tiene ningún subreddit, puede agregar uno con el comando:\n\n" +
+        "**>nuevo sr**"
+    );
+  } else {
+    var men = "Seleccione el subreddit que desea eliminar:\n\n";
+    var i = 1;
+    allsr.forEach((element) => {
+      men = men + i.toString() + ": **r/" + element._id_sub + "**\n";
+      i++;
     });
+    msg.reply(men);
+    const reply = await msg.channel.awaitMessages(filter, {
+      max: 1,
+      time: 30000,
+      errors: ["time"],
+    });
+    msg = reply.first();
+    await subreddits.updateOne(
+      {
+        _id_sub: allsr[parseInt(msg.content) - 1]._id_sub,
+      },
+      { $pull: { _id_sv: msg.guild.id } }
+    );
+    miMapa.delete(allsr[parseInt(msg.content) - 1]._id_sub);
+    msg.reply(
+      `Se ha eliminado **${
+        allsr[parseInt(msg.content) - 1]._id_sub
+      }** de la lista.`
+    );
+  }
 }
-function caratulahandler(msg) {
+async function caratulahandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
   msg.reply("¿Cual es el la carrera?");
-  msg.channel
-    .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
-    .then((msg) => {
-      msg = msg.first();
-      var carrera = msg.content;
-      msg.reply("¿Cual es el título del trabajo?");
-      msg.channel
-        .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
-        .then((msg) => {
-          msg = msg.first();
-          var titulo = msg.content;
-          msg.reply("¿Cual es el curso?");
-          msg.channel
-            .awaitMessages(filter, { max: 1, time: 30000, errors: ["time"] })
-            .then((msg) => {
-              msg = msg.first();
-              var curso = msg.content;
-              msg.reply("¿Qué semestre? Responda con un número del 1-10");
-              msg.channel
-                .awaitMessages(filter, {
-                  max: 1,
-                  time: 30000,
-                  errors: ["time"],
-                })
-                .then((msg) => {
-                  msg = msg.first();
-                  var semestre = parseInt(msg.content);
-                  if (semestre > 10 || semestre < 1) {
-                    msg.reply("No es un número válido");
-                  } else {
-                    msg.reply(
-                      "¿Quienes son los alumnos?\n No más de 6 personas ni menos de 1, nombres y apellidos separados por comas"
-                    );
-                    msg.channel
-                      .awaitMessages(filter, {
-                        max: 1,
-                        time: 30000,
-                        errors: ["time"],
-                      })
-                      .then((msg) => {
-                        msg = msg.first();
-                        var alumnos = msg.content.split(",");
-                        if (alumnos.length > 6 || alumnos.length < 1) {
-                          msg.reply("No es un número válido de alumnos.");
-                        } else {
-                          alumnos.forEach((element, index) => {
-                            alumnos[index] = element.trim();
-                          });
-                          generador.genCaratula(
-                            carrera,
-                            titulo,
-                            curso,
-                            semestre,
-                            alumnos,
-                            (archivo) => {
-                              if (archivo != null) {
-                                msg.channel.send({ files: ["./" + archivo] });
-                                fs.unlinkSync("./" + archivo);
-                              } else {
-                                msg.reply("No se pudo generar la caratula");
-                              }
-                            }
-                          );
-                        }
-                      });
-                  }
-                });
-            });
-        });
+  const firstReply = await msg.channel.awaitMessages(filter, {
+    max: 1,
+    time: 30000,
+    errors: ["time"],
+  });
+  msg = firstReply.first();
+  var carrera = msg.content;
+  msg.reply("¿Cual es el título del trabajo?");
+  const secondReply = await msg.channel.awaitMessages(filter, {
+    max: 1,
+    time: 30000,
+    errors: ["time"],
+  });
+  msg = secondReply.first();
+  var titulo = msg.content;
+  msg.reply("¿Cual es el curso?");
+  const thirdReply = await msg.channel.awaitMessages(filter, {
+    max: 1,
+    time: 30000,
+    errors: ["time"],
+  });
+  msg = thirdReply.first();
+  var curso = msg.content;
+  msg.reply("¿Qué semestre? Responda con un número del 1-10");
+  const fourthReply = await msg.channel.awaitMessages(filter, {
+    max: 1,
+    time: 30000,
+    errors: ["time"],
+  });
+  msg = fourthReply.first();
+  var semestre = parseInt(msg.content);
+  if (semestre > 10 || semestre < 1) {
+    msg.reply("No es un número válido");
+  } else {
+    msg.reply(
+      "¿Quienes son los alumnos?\n No más de 6 personas ni menos de 1, nombres y apellidos separados por comas"
+    );
+    const fifthReply = await msg.channel.awaitMessages(filter, {
+      max: 1,
+      time: 30000,
+      errors: ["time"],
     });
+    msg = fifthReply.first();
+    var alumnos = msg.content.split(",");
+    if (alumnos.length > 6 || alumnos.length < 1) {
+      msg.reply("No es un número válido de alumnos.");
+    } else {
+      alumnos.forEach((element, index) => {
+        alumnos[index] = element.trim();
+      });
+      generador.genCaratula(
+        carrera,
+        titulo,
+        curso,
+        semestre,
+        alumnos,
+        (archivo) => {
+          if (archivo != null) {
+            msg.channel.send({ files: ["./" + archivo] });
+            fs.unlinkSync("./" + archivo);
+          } else {
+            msg.reply("No se pudo generar la caratula");
+          }
+        }
+      );
+    }
+  }
 }
 module.exports = {
   nuevohandler, //Handler for new course
