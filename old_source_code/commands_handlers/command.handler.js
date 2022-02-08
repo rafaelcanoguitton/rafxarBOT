@@ -8,6 +8,8 @@ const wrapper = require("./redditwrap");
 const generador = require("./generador");
 const genCaratula = require("./generador");
 const fs = require("fs");
+const utils = require("./utilFunctions");
+
 /** Course reminder db schema
  */
 const Cursos = mongoose.model("cursos", {
@@ -124,6 +126,7 @@ async function sub_queries(client) {
   }
   setTimeout(sub_queries.bind(null, client), 300000); //Execute every 5 minutes 300000
 }
+//No le sabía al split xd
 function separacomas(a) {
   var arraystring = [];
   var placeholderstring = "";
@@ -278,98 +281,38 @@ async function inscrihandler(msg) {
     useUnifiedTopology: true,
   });
   try {
-    const all = await Cursos.aggregate([
-      { $match: { server: msg.guild.id } },
-      {
-        $group: {
-          _id: "$nombre",
-          fieldN: {
-            $push: {
-              dias: "$dia",
-              horas: "$hora",
-              minutos: "$minuto",
-              rol: "$rol",
-            },
-          },
-        },
-      },
-    ]);
-    if (all.length === 0) {
-      msg.channel.send("Aún no existe ningún curso.");
-    } else {
-      var mensaje = "";
-      var count = 1;
-      all.forEach((element) => {
-        var deis = "";
-        var hors = "";
-        element.fieldN.forEach((elementa) => {
-          deis += days[elementa.dias];
-          deis += " , ";
-          if (elementa.horas == 0) {
-            hors += "00:";
-          } else {
-            hors += elementa.horas.toString();
-            hors += ":";
-          }
-          if (elementa.minutos == 0) {
-            hors += "00";
-            hors += " , ";
-          } else {
-            hors += elementa.minutos.toString();
-            hors += " , ";
-          }
-        });
-        deis = deis.slice(0, -2);
-        hors = hors.slice(0, -2);
-        mensaje +=
-          "**" +
-          count.toString() +
-          "** : " +
-          "El curso: **" +
-          element._id +
-          "\t" +
-          "\t" +
-          "En los días: **" +
-          deis +
-          "\t" +
-          "\t" +
-          "A estas horas: **" +
-          hors +
-          "**\n";
-        count++;
-      });
-      msg.channel.send(mensaje).then(() => {
-        msg.reply("Indique el número de curso al que le gustaría matricularse");
-        const reply = await msg.channel.awaitMessages(filter, {
-          max: 1,
-          time: 30000,
-          errors: ["time"],
-        });
-        msg = reply.first();
-        if (parseInt(msg) <= all.length + 1) {
-          // msg.member.addRole(all[parseInt(msg) - 1].rol);
-          console.log(
-            all[parseInt(msg) - 1].fieldN[0].rol.substring(3).slice(0, -1)
-          );
-          let role = msg.guild.roles.cache.find(
-            (r) =>
-              r.id ===
-              all[parseInt(msg) - 1].fieldN[0].rol.substring(3).slice(0, -1)
-          );
-          if (!msg.member.roles.cache.some((rol) => rol.id === role.id)) {
-            msg.member.roles
-              .add(role.id)
-              .then(
-                console.log(`Succesfuly added role to member ${msg.author.tag}`)
-              )
-              .catch(console.error);
-          }
-          msg.reply("¡Has sido matriculado exitosamente!");
-        } else {
-          msg.reply("Fuera del rango.");
-        }
-      });
+    const mensaje = await utils.getAllCoursesAsString(msg.guild.id);
+    if (mensaje === -1) {
+      msg.reply("Aún no existe ningún curso.");
+      return;
     }
+    msg.channel.send(mensaje).then(() => {
+      msg.reply("Indique el número de curso al que le gustaría matricularse");
+      const reply = await msg.channel.awaitMessages(filter, {
+        max: 1,
+        time: 30000,
+        errors: ["time"],
+      });
+      msg = reply.first();
+      if (parseInt(msg) <= all.length + 1) {
+        let role = msg.guild.roles.cache.find(
+          (r) =>
+            r.id ===
+            all[parseInt(msg) - 1].fieldN[0].rol.substring(3).slice(0, -1)
+        );
+        if (!msg.member.roles.cache.some((rol) => rol.id === role.id)) {
+          msg.member.roles
+            .add(role.id)
+            .then(
+              console.log(`Succesfuly added role to member ${msg.author.tag}`)
+            )
+            .catch(console.error);
+        }
+        msg.reply("¡Has sido matriculado exitosamente!");
+      } else {
+        msg.reply("Fuera del rango.");
+      }
+    });
   } finally {
     mongoose.connection.close();
   }
@@ -503,12 +446,27 @@ async function que_srhandler(msg) {
     msg.reply(men);
   }
 }
-//Oh my fucking god this shit is annoying
-//Will implement when class starts again what the fuck
-function borr_cursohandler(msg) {
-  // await mongoose
-  //   .connect(mongoPath, { useNewUrlParser: true, useUnifiedTopology: true })
-  //   .then(async () => {});
+async function borr_cursohandler(msg) {
+  try {
+    const filter = (m) => m.author.id === msg.author.id;
+    const courseString = await utils.getAllCoursesAsString(msg.guild.id);
+    if (courseString.length === 0) {
+      msg.reply("No hay cursos para borrar");
+      return 0;
+    }
+    msg.reply(courseString);
+    msg.reply("¿Qué curso quieres borrar?");
+    const reply = msg.channel.awaitMessages(filter, {
+      max: 1,
+      time: 30000,
+      errors: ["time"],
+    });
+    msg = reply.first();
+    Cursos.deleteOne({ _id_sv: msg.guild.id, _id_curso: msg.content });
+    msg.reply("Curso borrado correctamente");
+  } catch (err) {
+    msg.reply("Ocurrió un error en el servidor");
+  }
 }
 async function borr_srhandler(msg) {
   let filter = (m) => m.author.id === msg.author.id;
