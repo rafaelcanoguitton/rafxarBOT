@@ -87,4 +87,4 @@ class Mixed(commands.Cog):
         # we get the file id from the response
         file_id = r.text
         # we send the file to the channel using the api url and the file id
-        await ctx.send(file=discord.File(apiUrl + "/retornar_caratula/" + file_id))
+        await ctx.send(file=discord.File(f'{apiUrl}/retornar_caratula/{file_id}'))
