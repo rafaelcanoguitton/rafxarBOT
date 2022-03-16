@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from courses import Cursos
 from mixed import Mixed
 from subreddits import Subreddit
+from voice import Voice
 import discord
 load_dotenv()
 reddit_instance = praw.Reddit(client_id=os.getenv("clientId"),
@@ -70,6 +71,7 @@ async def sub_queries():
 bot.add_cog(Cursos(bot))
 bot.add_cog(Mixed(bot))
 bot.add_cog(Subreddit(bot))
+bot.add_cog(Voice(bot))
 @bot.event
 async def on_ready():
     print("Bot is ready")

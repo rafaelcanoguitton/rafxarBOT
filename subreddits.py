@@ -16,7 +16,7 @@ class Subreddit(commands.Cog):
         )
         await ctx.send('Okay, ¡Aquí enviaré los nuevos posts de ahora en adelante! en ' + ctx.message.channel.name)
 
-    @commands.command(name='nuevoSubreddit', aliases=['nuevo'])
+    @commands.command(name='nuevoSubreddit')
     async def nuevo_sr(self, ctx, sr=None):
         if sr != "sr":
             return
@@ -44,7 +44,7 @@ class Subreddit(commands.Cog):
         else:
             mensaje = "Seleccione el subreddit que desea eliminar:\n\n"
             for index, sr in enumerate(allsr):
-                mensaje += str(index) + " : **r/" + sr["_id_sub"] + "**\n"
+                mensaje += f'{str(index)} : **r/' + sr["_id_sub"] + "**\n"
             await ctx.send(mensaje)
             msg = await self.client.wait_for('message', check=lambda message: message.author == author)
             subreddit = msg.content
